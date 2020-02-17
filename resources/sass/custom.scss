@@ -1,0 +1,40 @@
+// In this scss you can overwrite all our scss, we suggested you to add your scss into this, so whenever the update comes it will not affect your code.
+.toast {
+    font-size: 1rem !important;
+}
+
+.notices .toast .toast-text {
+    color: #fff !important;
+}
+
+.line-height-0 {
+    line-height: 30px !important;
+}
+
+.margin-top-0-5{
+    margin-top: 0.5rem !important;
+}
+
+.heigth-50 {
+    height: 50px !important;
+}
+
+.modal-backdrop {
+    background-color: #000000bf !important;
+}
+
+.btn {
+    min-width: 25px !important;
+}
+
+.modal-xl {
+    max-width: 80% !important;
+}
+
+.limite-altura {
+    max-height: 180px;
+}
+
+.custom-file-input:lang(es) ~ .custom-file-label::after {
+    content: 'Buscar' !important;
+}

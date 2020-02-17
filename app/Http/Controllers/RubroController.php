@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Rubro;
+use Illuminate\Http\Request;
+
+class RubroController extends Controller
+{
+    //
+    public function index($tipo){
+        switch ($tipo) {
+            case 1:
+                return ['rubros' => Rubro::orderBy('nombre', 'asc')->get()];
+                break;
+        }
+    }
+
+    public function crear_actualizar(Request $request){
+        Rubro::updateOrCreate(
+            ['id' => $request->id],
+            ['nombre' => $request->nombre]
+        );
+    }
+
+    public function borrar(Request $request){
+        Rubro::find($request->id)->delete();
+    }
+
+}
