@@ -26,6 +26,8 @@ Route::get('/nosotros', function () {
     return view('nosotros');
 });
 
+Route::post('/publicacion/finalizar','PlanPublicacionController@finalizar')->name('Finalizar inscripcion');
+
 Route::get('/resultados/{comuna_id}/{rubro}', 'PublicacionController@index')->name('Listar rubros home');
 Route::post('/publicaciones/busqueda/usuario', 'PublicacionController@index_buscador')->name('Listar rubros home');
 Route::get('/publicacion/{id}', 'PublicacionController@ver')->name('Ver publicacion');
@@ -82,6 +84,16 @@ Route::post('/usuario/rubro/borrar', 'UsuarioController@borrar_rubro_usuario')->
 
 Route::post('/usuario/crear/actualizar/publicacion', 'UsuarioController@agregar_publicaciones')->name('Agregar publicaciones al usuario');
 Route::get('/usuario/publicaciones/{id}', 'UsuarioController@index_publicaciones_usuario')->name('Obtener publicaciones usuario');
+Route::get('/usuario/planes/publicacion/{id}', 'UsuarioController@index_plan_publicaciones_usuario')->name('Obtener planes de publicaciones usuario');
 Route::post('/usuario/publicacion/borrar', 'UsuarioController@borrar_publicaciones')->name('Borrar publicaciones usuario');
+Route::post('/usuario/plan/publicacion/borrar', 'UsuarioController@borrar_plan_publicaciones')->name('Borrar plan publicaciones usuario');
+Route::post('/usuario/crear/plan/publicacion', 'UsuarioController@agregar_plan_publicacion')->name('Agregar plan publicaciones usuario');
+Route::post('/usuario/pagar/plan/publicacion', 'UsuarioController@pagar_plan_publicacion')->name('Pagar plan publicaciones usuario');
+
+Route::post('/publicacion/procesar','PlanPublicacionController@procesar')->name('Procesar publicacion');
+
+
+
+
 
 Route::get('/{any}', 'HomeController@index')->where('any', '.*')->name('home');

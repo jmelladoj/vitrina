@@ -22,9 +22,7 @@ class CreatePublicacionsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->unsignedBigInteger('plan_id')->nullable()->default(null);
-            $table->foreign('plan_id')->references('id')->on('planes');
-
+            $table->softDeletes();
             $table->timestamps();
         });
     }

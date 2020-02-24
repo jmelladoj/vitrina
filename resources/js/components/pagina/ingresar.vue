@@ -263,9 +263,6 @@
                 }
             }
         },
-        computed:{
-            ...mapState('usuario', ['usuario'])
-        },
         methods: {
             ...mapMutations(['msg_success', 'msg_error']),
             ...mapMutations('usuario', ['actualizar']),
@@ -276,10 +273,10 @@
                 let me = this
 
                 axios.get('/usuario/logeado').then(function (response) {
-                    if(response.data.usuario){
-                        me.actualizar(response.data.usuario)
+                    if(response.data.usuario.administrador == 1){
+                        window.location.href = "/usuarios"
                     } else {
-                        window.location.href = "/";
+                        window.location.href = "/perfil"
                     }
                 })
             },
@@ -295,12 +292,7 @@
                     'email': me.inicio_sesion.email,
                     'password': me.inicio_sesion.password
                 }).then(function (response) {
-                    if(me.usuario.administrador == 1){
-                        window.location.href = "/usuarios"
-                    } else {
-                        window.location.href = "/perfil"
-                    }
-
+                    me.usuario_logeado()
                 }).catch(function (error) {
                     if (error.response.status == 422){
                         me.inicio_sesion.password = ''

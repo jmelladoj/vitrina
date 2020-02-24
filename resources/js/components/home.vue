@@ -78,11 +78,6 @@
     import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
     export default {
-        data() {
-            return {
-
-            }
-        },
         computed: {
             ...mapGetters('usuario', ['saludo']),
             ...mapState('usuario', ['usuario'])

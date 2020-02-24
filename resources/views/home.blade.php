@@ -1,5 +1,5 @@
 @extends('layouts.intranet')
 
 @section('content')
-    <home></home>
+    <home @isset($mensaje) mensaje="{{ $mensaje }}" @endisset></home>
 @endsection

@@ -6,6 +6,8 @@ use App\RubroUsuario;
 use App\ComunaUsuario;
 use App\Mail\RecuperarClave;
 use App\Mail\UsuarioNuevo;
+use App\Plan;
+use App\PlanPublicacion;
 use App\Publicacion;
 use App\Rubro;
 use App\User;
@@ -14,6 +16,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Freshwork\Transbank\CertificationBagFactory;
+use Freshwork\Transbank\TransbankServiceFactory;
+use Freshwork\Transbank\RedirectorHelper;
 
 class UsuarioController extends Controller
 {
@@ -40,6 +46,10 @@ class UsuarioController extends Controller
 
     public function index_publicaciones_usuario($id){
         return ['publicaciones' => Publicacion::where('user_id', $id)->orderBy('titulo', 'asc')->get()];
+    }
+
+    public function index_plan_publicaciones_usuario($id){
+        return ['plan_publicaciones' => PlanPublicacion::where('publicacion_id', $id)->orderBy('created_at', 'desc')->get()];
     }
 
     public function crear_actualizar(Request $request){
@@ -129,18 +139,78 @@ class UsuarioController extends Controller
     }
 
     public function agregar_publicaciones(Request $request){
-        Publicacion::updateOrCreate(
-            [
-                'id' => $request->id
-            ],
-            [
-                'titulo' => $request->titulo,
-                'descripcion' => $request->descripcion,
-                'user_id' => $request->user_id,
-                'plan_id' => $request->plan_id
-            ]
-        );
+        DB::transaction(function () use ($request) {
+            $ventas = PlanPublicacion::where('user_id', $request->user_id)->get()->count();
+
+            $publicacion = Publicacion::updateOrCreate(
+                [
+                    'id' => $request->id
+                ],
+                [
+                    'titulo' => $request->titulo,
+                    'descripcion' => $request->descripcion,
+                    'user_id' => $request->user_id
+                ]
+            );
+
+            if($request->plan_id != null){
+                $plan = Plan::find($request->plan_id);
+
+                PlanPublicacion::create([
+                    'nombre_plan' => $plan->nombre,
+                    'duracion' => $plan->duracion,
+                    'valor' => $plan->valor,
+                    'plan_id' => $plan->id,
+                    'publicacion_id' => $publicacion->id,
+                    'user_id' => $request->user_id,
+                    'estado' => $ventas == 0 ? 1 : 0
+                ]);
+            }
+        });
+
     }
+
+    public function agregar_plan_publicacion(Request $request){
+        $plan = Plan::find($request->plan_id);
+
+        PlanPublicacion::create([
+            'nombre_plan' => $plan->nombre,
+            'duracion' => $plan->duracion,
+            'valor' => $plan->valor,
+            'plan_id' => $plan->id,
+            'publicacion_id' => $request->publicacion_id,
+            'user_id' => $request->user_id
+        ]);
+    }
+
+    public function pagar_plan_publicacion(Request $request){
+        $plan = Plan::find($request->plan_id);
+        $ventas = PlanPublicacion::get()->count();
+
+        $bag = CertificationBagFactory::integrationWebpayNormal();
+        $plus = TransbankServiceFactory::normal($bag);
+        $plus->addTransactionDetail($plan->valor, ($ventas + 1));
+
+        $response = $plus->initTransaction(url('/publicacion/procesar'), url('/publicacion/finalizar'));
+
+        PlanPublicacion::create([
+            'nombre_plan' => $plan->nombre,
+            'duracion' => $plan->duracion,
+            'valor' => $plan->valor,
+            'plan_id' => $plan->id,
+            'publicacion_id' => $request->publicacion_id,
+            'user_id' => $request->user_id,
+            'token' => $response->token
+        ]);
+
+        return [
+            'url' => $response->url,
+            'token' => $response->token
+        ];
+    }
+
+
+
 
     public function borrar(Request $request){
         User::find($request->id)->delete();
@@ -163,6 +233,10 @@ class UsuarioController extends Controller
 
     public function borrar_publicaciones(Request $request){
         Publicacion::find($request->id)->delete();
+    }
+
+    public function borrar_plan_publicaciones(Request $request){
+        PlanPublicacion::find($request->id)->delete();
     }
 
     public function logeado(){

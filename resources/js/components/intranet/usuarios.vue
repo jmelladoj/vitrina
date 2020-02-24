@@ -301,8 +301,8 @@
                     </b-tab>
                     <b-tab title="Publicaciones" @click="menu_usuario = 3">
                         <b-row>
-                            <b-col>
-                                <b-form-group label="Plan asociado a publicación">
+                            <b-col v-if="plan_publicaciones.length == 0">
+                                <b-form-group label="Plan asociado a publicación" v-if="publicacion.id == 0">
                                     <b-form-select
                                         v-model="$v.publicacion.plan_id.$model"
                                         :state="$v.publicacion.plan_id.$dirty ? !$v.publicacion.plan_id.$error : null"
@@ -341,6 +341,84 @@
                                         Campo de alfabético, mínimo de 20 caracteres.
                                     </b-form-invalid-feedback>
                                 </b-form-group>
+                            </b-col>
+                            <b-col v-else>
+                                <b-row>
+                                    <b-col>
+                                        <b-form-group label="Plan asociado a publicación">
+                                            <b-form-select
+                                                v-model="$v.plan_publicacion.plan_id.$model"
+                                                :state="$v.plan_publicacion.plan_id.$dirty ? !$v.plan_publicacion.plan_id.$error : null"
+                                                aria-describedby="plan-publicacion-id">
+                                                <option :value="0">Selecciona una opción</option>
+                                                <option v-for="plan in planes" :key="plan.id" :value="plan.id" v-text="plan.nombre + ' - $' + plan.valor"></option>
+                                            </b-form-select>
+
+                                            <b-form-invalid-feedback id="plan-publicacion-id">
+                                                Debes asignar un plan a la publicación.
+                                            </b-form-invalid-feedback>
+                                        </b-form-group>
+                                    </b-col>
+                                </b-row>
+
+                                <b-row>
+                                    <b-col lg="6" class="my-1">
+                                        <b-form-group label="Búsqueda" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="filterInput" class="mb-0" >
+                                        <b-input-group size="sm">
+                                            <b-form-input v-model="filter_plan_publicacion" type="search" id="filterInput" placeholder="Escribe para buscar"></b-form-input>
+                                            <b-input-group-append>
+                                                <b-button :disabled="!filter_plan_publicacion" @click="filter_plan_publicacion = ''">Limpiar</b-button>
+                                            </b-input-group-append>
+                                        </b-input-group>
+                                        </b-form-group>
+                                    </b-col>
+
+                                    <b-col lg="6" class="my-1">
+                                        <b-form-group label="Ordenar" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="sortBySelect" class="mb-0">
+                                            <b-input-group size="sm">
+                                                <b-form-select v-model="sortBy_plan_publicacion" id="sortBySelect" :options="sortOptions_plan_publicacion" class="w-75">
+                                                    <template v-slot:first>
+                                                        <option value="">Sin ordenar</option>
+                                                    </template>
+                                                </b-form-select>
+                                                <b-form-select v-model="sortDesc_plan_publicacion" size="sm" :disabled="!sortBy_plan_publicacion" class="w-25">
+                                                    <option :value="false">Asc</option>
+                                                    <option :value="true">Desc</option>
+                                                </b-form-select>
+                                            </b-input-group>
+                                        </b-form-group>
+                                    </b-col>
+
+                                    <b-col lg="6" class="my-1">
+                                        <b-form-group label="Por página" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="perPageSelect" class="mb-0">
+                                            <b-form-select v-model="perPage_plan_publicacion" id="perPageSelect" size="sm" :options="pageOptions_plan_publicacion"></b-form-select>
+                                        </b-form-group>
+                                    </b-col>
+
+                                    <b-col lg="6" class="my-1">
+                                        <b-pagination v-model="currentPage_plan_publicacion" :total-rows="totalRows_plan_publicacion" :per-page="perPage_plan_publicacion" align="fill" size="sm" class="my-0" ></b-pagination>
+                                    </b-col>
+                                </b-row>
+
+                                <b-row>
+                                    <b-col>
+                                        <b-table class="my-3" show-empty small striped outlined stacked="sm" :items="plan_publicaciones" :fields="fields_plan_publicacion" :current-page="currentPage_plan_publicacion" :per-page="perPage_plan_publicacion" :filter="filter_plan_publicacion" :sort-by.sync="sortBy_plan_publicacion" :sort-desc.sync="sortDesc_plan_publicacion" @filtered="onFiltered_plan_publicacion" >
+                                            <template v-slot:empty>
+                                                <center><h5>No hay registros</h5></center>
+                                            </template>
+
+                                            <template v-slot:cell(index)="data">
+                                                {{ data.index + 1 }}
+                                            </template>
+
+                                            <template v-slot:cell(acciones)="row">
+                                                <b-button size="xs" variant="danger" title="Eliminar registro" @click="borrar_plan_publicacion_usuario(row.item.id)">
+                                                    <i class="fa fa-trash"></i>
+                                                </b-button>
+                                            </template>
+                                        </b-table>
+                                    </b-col>
+                                </b-row>
                             </b-col>
                             <b-col>
                                 <b-row>
@@ -394,6 +472,10 @@
                                             </template>
 
                                             <template v-slot:cell(acciones)="row">
+                                                <b-button size="xs" variant="success" title="Agregar plan a publicación" @click="cargar_datos_plan_usuario(row.item.id)">
+                                                    <i class="fa fa-plus"></i>
+                                                </b-button>
+
                                                 <b-button size="xs" variant="warning" title="Actualizar información" @click="actualizar_publicacion(row.item)">
                                                     <i class="fa fa-pencil"></i>
                                                 </b-button>
@@ -413,7 +495,8 @@
 
             <template slot="modal-footer">
                 <b-button :disabled="$v.perfil.$invalid" v-show="menu_usuario == 0" size="md" variant="success" @click="cambiar_redes_sociales"> Actualizar información </b-button>
-                <b-button :disabled="$v.publicacion.$invalid" v-show="menu_usuario == 3 && publicacion.id == 0" size="md" variant="success" @click="crear_actualizar_publicacion"> Agregar publicación </b-button>
+                <b-button :disabled="$v.plan_publicacion.$invalid" v-show="menu_usuario == 3 && plan_publicaciones.length > 0" size="md" variant="success" @click="crear_actualizar_plan_publicacion"> Agregar plan a publicación </b-button>
+                <b-button :disabled="$v.publicacion.$invalid" v-show="menu_usuario == 3  && plan_publicaciones.length == 0" size="md" variant="success" @click="crear_actualizar_publicacion"> Agregar publicación </b-button>
                 <b-button :disabled="$v.publicacion.$invalid" v-show="menu_usuario == 3 && publicacion.id > 0" size="md" variant="warning" @click="crear_actualizar_publicacion"> Actualizar publicación </b-button>
                 <b-button :disabled="$v.publicacion.$invalid" v-show="menu_usuario == 3 && publicacion.id > 0" size="md" variant="info" @click="limpiar_datos_publicacion"> Limpiar campos </b-button>
                 <b-button size="md" variant="danger" @click="cerrar_modal_informacion_usuario"> Cerrar </b-button>
@@ -522,6 +605,7 @@
                 comunas_usuario: [],
                 rubros_usuario: [],
                 publicaciones_usuario: [],
+                plan_publicaciones: [],
                 menu_usuario: 0,
                 fields: [
                     { key: 'index', label: '#', sortable: true, class: 'text-center' },
@@ -609,8 +693,24 @@
                     titulo: '',
                     descripcion: '',
                     plan_id: 0
-                }
-
+                },
+                plan_publicacion: {
+                    plan_id: 0
+                },
+                fields_plan_publicacion: [
+                    { key: 'index', label: '#', sortable: true, class: 'text-center' },
+                    { key: 'nombre_plan', label: 'Plan', sortable: true, class: 'text-left' },
+                    { key: 'valor', label: 'Valor', sortable: true, class: 'text-left' },
+                    { key: 'duracion', label: 'Duración', sortable: true, class: 'text-left' },
+                    { key: 'acciones', label: 'Acciones', class: 'text-center'}
+                ],
+                totalRows_plan_publicacion: 1,
+                currentPage_plan_publicacion: 1,
+                perPage_plan_publicacion: 15,
+                pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 150],
+                sortBy_plan_publicacion: '',
+                sortDesc_plan_publicacion: false,
+                filter_plan_publicacion: null,
             }
         },
         validations:{
@@ -684,6 +784,14 @@
                     minLength: minLength(20)
                 },
                 plan_id: {
+                    required: requiredIf(function () {
+                        return this.publicacion.id == 0 ? true : false
+                    }),
+                    minValue: minValue(1)
+                }
+            },
+            plan_publicacion: {
+                plan_id: {
                     required,
                     minValue: minValue(1)
                 }
@@ -709,6 +817,11 @@
                 return this.fields_publicacion.filter(f => f.sortable).map(f => {
                     return { text: f.label, value: f.key }
                 })
+            },
+            sortOptions_plan_publicacion() {
+                return this.fields_plan_publicacion.filter(f => f.sortable).map(f => {
+                    return { text: f.label, value: f.key }
+                })
             }
         },
         methods: {
@@ -727,6 +840,10 @@
             },
             onFiltered_publicacion(filteredItems) {
                 this.totalRows_publicacion = filteredItems.length
+                this.currentPage = 1
+            },
+            onFiltered_plan_publicacion(filteredItems) {
+                this.totalRows_plan_publicacion = filteredItems.length
                 this.currentPage = 1
             },
             comuna_seleccionada(e){
@@ -859,6 +976,25 @@
                     console.log(error);
                 });
             },
+            listar_planes_publicacion(){
+                let me = this
+
+                axios.get('/usuario/planes/publicacion/' + me.publicacion.id).then(function (response) {
+
+                    me.plan_publicaciones = response.data.plan_publicaciones
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            },
+            cargar_datos_plan_usuario(id){
+                let me = this
+
+                me.plan_publicaciones = []
+                me.publicacion.id = id
+
+                me.listar_planes_publicacion()
+            },
             abrir_modal_usuario(data = []) {
                 let me = this
 
@@ -915,6 +1051,8 @@
             cerrar_modal_informacion_usuario(data = []){
                 this.limpiar_datos_informacion_usuario()
                 this.limpiar_datos_publicacion()
+                this.menu_usuario = 0
+                this.plan_publicaciones = []
                 this.$refs['modal_informacion_usuario'].hide()
             },
             limpiar_datos_informacion_usuario(){
@@ -940,7 +1078,7 @@
                 this.publicacion.id = 0
                 this.publicacion.titulo = ''
                 this.publicacion.descripcion = ''
-                this.publicacion.plan_id = ''
+                this.publicacion.plan_id = 0
 
                 this.$v.publicacion.$touch(true)
             },
@@ -1016,7 +1154,6 @@
                 this.publicacion.id = data.id
                 this.publicacion.titulo = data.titulo
                 this.publicacion.descripcion = data.descripcion
-                this.publicacion.plan_id = data.plan_id
 
                 this.$v.publicacion.$touch(true)
             },
@@ -1038,6 +1175,26 @@
                         me.listar_publicaciones_usuario()
                         me.limpiar_datos_publicacion()
                         me.msg_success(me.publicacion.id == 0 ? 'Registro agregado exitosamente.' :  'Registro actualizado exitosamente.')
+                    }).catch(function (error) {
+                        console.log(error)
+                })
+            },
+            crear_actualizar_plan_publicacion(){
+                if(this.$v.plan_publicacion.$invalid){
+                    this.$v.plan_publicacion.$touch()
+                    return
+                }
+
+                let me = this
+
+                axios.post('/usuario/crear/plan/publicacion',{
+                        'publicacion_id': me.publicacion.id,
+                        'plan_id': me.plan_publicacion.plan_id,
+                        'user_id': me.usuario.id
+                    }).then(function (response) {
+                        me.listar_planes_publicacion()
+                        me.plan_publicacion.plan_id = 0
+                        me.msg_success('Registro agregado exitosamente.')
                     }).catch(function (error) {
                         console.log(error)
                 })
@@ -1140,6 +1297,29 @@
                             'id': id
                         }).then(function (response) {
                             me.listar_rubros_usuario();
+                            me.msg_success('Registro eliminado exitosamente.')
+                        }).catch(function (error) {
+                            console.log(error);
+                        })
+                    }
+                })
+            },
+            borrar_plan_publicacion_usuario(id){
+                swal.fire({
+                    title: '¿Deseas borrar el registro?',
+                    text: "¡No podrás revertir esto!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, ¡bórralo!'
+                }).then((result) => {
+                    if (result.value) {
+                        let me = this
+                        axios.post('/usuario/plan/publicacion/borrar',{
+                            'id': id
+                        }).then(function (response) {
+                            me.listar_planes_publicacion();
                             me.msg_success('Registro eliminado exitosamente.')
                         }).catch(function (error) {
                             console.log(error);

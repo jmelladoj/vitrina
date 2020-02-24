@@ -1965,9 +1965,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  data: function data() {
-    return {};
-  },
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])('usuario', ['saludo']), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])('usuario', ['usuario'])),
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])('usuario', ['salir']), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapMutations"])('usuario', ['actualizar']), {
     usuario_logeado: function usuario_logeado() {
@@ -2373,6 +2370,96 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2391,7 +2478,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         id: 0,
         titulo: '',
         descripcion: '',
-        plan_id: 5
+        plan_id: 0
+      },
+      plan_publicacion: {
+        plan_id: 0,
+        publicacion_id: 0
       },
       modal_publicacion: {
         titulo: '',
@@ -2402,6 +2493,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       comunas_usuario: [],
       rubros: [],
       rubros_usuario: [],
+      plan_publicaciones: [],
+      planes: [],
       menu_usuario: 0,
       fields: [{
         key: 'index',
@@ -2478,7 +2571,40 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       pageOptions_rubro: [15, 50, 100, 150, 200, 150],
       sortBy_rubro: '',
       sortDesc_rubro: false,
-      filter_rubro: null
+      filter_rubro: null,
+      fields_plan_publicacion: [{
+        key: 'index',
+        label: '#',
+        sortable: true,
+        "class": 'text-center'
+      }, {
+        key: 'nombre_plan',
+        label: 'Plan',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'valor',
+        label: 'Valor',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'duracion',
+        label: 'Duración',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'estado',
+        label: 'Estado pago',
+        sortable: true,
+        "class": 'text-left'
+      }],
+      totalRows_plan_publicacion: 1,
+      currentPage_plan_publicacion: 1,
+      perPage_plan_publicacion: 15,
+      pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 150],
+      sortBy_plan_publicacion: '',
+      sortDesc_plan_publicacion: false,
+      filter_plan_publicacion: null
     };
   },
   validations: {
@@ -2516,11 +2642,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       descripcion: {
         required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"],
         minLength: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["minLength"])(20)
-      } //plan_id: {
-      //    required,
-      //    minValue: minValue(1)
-      //}
-
+      }
+    },
+    plan_publicacion: {
+      plan_id: {
+        required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"],
+        minValue: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["minValue"])(1)
+      }
     }
   },
   computed: {
@@ -2553,6 +2681,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           value: f.key
         };
       });
+    },
+    sortOptions_plan_publicacion: function sortOptions_plan_publicacion() {
+      return this.fields_plan_publicacion.filter(function (f) {
+        return f.sortable;
+      }).map(function (f) {
+        return {
+          text: f.label,
+          value: f.key
+        };
+      });
     }
   },
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapMutations"])(['msg_success', 'msg_error']), {
@@ -2566,6 +2704,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     onFiltered_rubro: function onFiltered_rubro(filteredItems) {
       this.totalRows_rubro = filteredItems.length;
+      this.currentPage = 1;
+    },
+    onFiltered_plan_publicacion: function onFiltered_plan_publicacion(filteredItems) {
+      this.totalRows_plan_publicacion = filteredItems.length;
       this.currentPage = 1;
     },
     comuna_seleccionada: function comuna_seleccionada(e) {
@@ -2664,6 +2806,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         console.log(error);
       });
     },
+    listar_planes_publicacion: function listar_planes_publicacion() {
+      var me = this;
+      axios.get('/usuario/planes/publicacion/' + me.plan_publicacion.publicacion_id).then(function (response) {
+        me.plan_publicaciones = response.data.plan_publicaciones;
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    listar_planes: function listar_planes() {
+      var me = this;
+      axios.get('/planes/1').then(function (response) {
+        me.planes = response.data.planes;
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
     eliminar_foto_perfil: function eliminar_foto_perfil() {
       var me = this;
       axios.post('/usuario/eliminar/foto', {
@@ -2719,6 +2877,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.$refs['modal_publicacion'].show();
     },
+    abrir_modal_plan_publicacion_usuario: function abrir_modal_plan_publicacion_usuario(id) {
+      var me = this;
+      me.plan_publicaciones = [];
+      me.plan_publicacion.publicacion_id = id;
+      me.listar_planes_publicacion();
+      this.$refs['modal_plan_publicacion'].show();
+    },
+    cerrar_modal_plan_publicacion: function cerrar_modal_plan_publicacion() {
+      this.modal_publicacion.titulo = '';
+      this.modal_publicacion.accion = 0;
+      this.$refs['modal_plan_publicacion'].hide();
+    },
     cerrar_modal_publicacion: function cerrar_modal_publicacion() {
       this.modal_publicacion.titulo = '';
       this.modal_publicacion.accion = 0;
@@ -2736,11 +2906,38 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         'titulo': me.publicacion.titulo,
         'descripcion': me.publicacion.descripcion.replace(/\r?\n/g, '<br />'),
         'user_id': me.usuario.id,
-        'plan_id': me.publicacion.plan_id
+        'plan_id': me.items.length == 0 ? 5 : null
       }).then(function (response) {
         me.listar_publicaciones_usuario(me.usuario.id);
         me.limpiar_datos_publicacion();
         me.msg_success(me.publicacion.id == 0 ? 'Registro agregado exitosamente.' : 'Registro actualizado exitosamente.');
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    crear_actualizar_plan_publicacion: function crear_actualizar_plan_publicacion() {
+      if (this.$v.plan_publicacion.$invalid) {
+        this.$v.plan_publicacion.$touch();
+        return;
+      }
+
+      var me = this;
+      axios.post('/usuario/pagar/plan/publicacion', {
+        'publicacion_id': me.plan_publicacion.publicacion_id,
+        'plan_id': me.plan_publicacion.plan_id,
+        'user_id': me.usuario.id
+      }).then(function (response) {
+        me.plan_publicacion.plan_id = 0;
+        me.msg_success('Seras redeireccionado al portal de transbank.');
+        var form = document.createElement("form");
+        var input_token = document.createElement("input");
+        form.method = "POST";
+        form.action = response.data.url;
+        input_token.value = response.data.token;
+        input_token.name = "TBK_TOKEN";
+        form.appendChild(input_token);
+        document.body.appendChild(form);
+        form.submit();
       })["catch"](function (error) {
         console.log(error);
       });
@@ -2852,6 +3049,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.usuario_logeado();
     this.listar_comunas();
     this.listar_rubros();
+    this.listar_planes();
   }
 });
 
@@ -4463,6 +4661,89 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4475,6 +4756,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       comunas_usuario: [],
       rubros_usuario: [],
       publicaciones_usuario: [],
+      plan_publicaciones: [],
       menu_usuario: 0,
       fields: [{
         key: 'index',
@@ -4622,7 +4904,42 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         titulo: '',
         descripcion: '',
         plan_id: 0
-      }
+      },
+      plan_publicacion: {
+        plan_id: 0
+      },
+      fields_plan_publicacion: [{
+        key: 'index',
+        label: '#',
+        sortable: true,
+        "class": 'text-center'
+      }, {
+        key: 'nombre_plan',
+        label: 'Plan',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'valor',
+        label: 'Valor',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'duracion',
+        label: 'Duración',
+        sortable: true,
+        "class": 'text-left'
+      }, {
+        key: 'acciones',
+        label: 'Acciones',
+        "class": 'text-center'
+      }],
+      totalRows_plan_publicacion: 1,
+      currentPage_plan_publicacion: 1,
+      perPage_plan_publicacion: 15,
+      pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 150],
+      sortBy_plan_publicacion: '',
+      sortDesc_plan_publicacion: false,
+      filter_plan_publicacion: null
     };
   },
   validations: {
@@ -4731,6 +5048,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         minLength: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["minLength"])(20)
       },
       plan_id: {
+        required: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["requiredIf"])(function () {
+          return this.publicacion.id == 0 ? true : false;
+        }),
+        minValue: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["minValue"])(1)
+      }
+    },
+    plan_publicacion: {
+      plan_id: {
         required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["required"],
         minValue: Object(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_1__["minValue"])(1)
       }
@@ -4776,6 +5101,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           value: f.key
         };
       });
+    },
+    sortOptions_plan_publicacion: function sortOptions_plan_publicacion() {
+      return this.fields_plan_publicacion.filter(function (f) {
+        return f.sortable;
+      }).map(function (f) {
+        return {
+          text: f.label,
+          value: f.key
+        };
+      });
     }
   },
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapMutations"])(['msg_success', 'msg_error']), {
@@ -4793,6 +5128,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     onFiltered_publicacion: function onFiltered_publicacion(filteredItems) {
       this.totalRows_publicacion = filteredItems.length;
+      this.currentPage = 1;
+    },
+    onFiltered_plan_publicacion: function onFiltered_plan_publicacion(filteredItems) {
+      this.totalRows_plan_publicacion = filteredItems.length;
       this.currentPage = 1;
     },
     comuna_seleccionada: function comuna_seleccionada(e) {
@@ -4905,6 +5244,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         console.log(error);
       });
     },
+    listar_planes_publicacion: function listar_planes_publicacion() {
+      var me = this;
+      axios.get('/usuario/planes/publicacion/' + me.publicacion.id).then(function (response) {
+        me.plan_publicaciones = response.data.plan_publicaciones;
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    cargar_datos_plan_usuario: function cargar_datos_plan_usuario(id) {
+      var me = this;
+      me.plan_publicaciones = [];
+      me.publicacion.id = id;
+      me.listar_planes_publicacion();
+    },
     abrir_modal_usuario: function abrir_modal_usuario() {
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var me = this;
@@ -4960,6 +5313,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       this.limpiar_datos_informacion_usuario();
       this.limpiar_datos_publicacion();
+      this.menu_usuario = 0;
+      this.plan_publicaciones = [];
       this.$refs['modal_informacion_usuario'].hide();
     },
     limpiar_datos_informacion_usuario: function limpiar_datos_informacion_usuario() {
@@ -4982,7 +5337,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.publicacion.id = 0;
       this.publicacion.titulo = '';
       this.publicacion.descripcion = '';
-      this.publicacion.plan_id = '';
+      this.publicacion.plan_id = 0;
       this.$v.publicacion.$touch(true);
     },
     crear_actualizar_usuario: function crear_actualizar_usuario() {
@@ -5053,7 +5408,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.publicacion.id = data.id;
       this.publicacion.titulo = data.titulo;
       this.publicacion.descripcion = data.descripcion;
-      this.publicacion.plan_id = data.plan_id;
       this.$v.publicacion.$touch(true);
     },
     crear_actualizar_publicacion: function crear_actualizar_publicacion() {
@@ -5073,6 +5427,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         me.listar_publicaciones_usuario();
         me.limpiar_datos_publicacion();
         me.msg_success(me.publicacion.id == 0 ? 'Registro agregado exitosamente.' : 'Registro actualizado exitosamente.');
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    crear_actualizar_plan_publicacion: function crear_actualizar_plan_publicacion() {
+      if (this.$v.plan_publicacion.$invalid) {
+        this.$v.plan_publicacion.$touch();
+        return;
+      }
+
+      var me = this;
+      axios.post('/usuario/crear/plan/publicacion', {
+        'publicacion_id': me.publicacion.id,
+        'plan_id': me.plan_publicacion.plan_id,
+        'user_id': me.usuario.id
+      }).then(function (response) {
+        me.listar_planes_publicacion();
+        me.plan_publicacion.plan_id = 0;
+        me.msg_success('Registro agregado exitosamente.');
       })["catch"](function (error) {
         console.log(error);
       });
@@ -5178,6 +5551,31 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             'id': id
           }).then(function (response) {
             me.listar_rubros_usuario();
+            me.msg_success('Registro eliminado exitosamente.');
+          })["catch"](function (error) {
+            console.log(error);
+          });
+        }
+      });
+    },
+    borrar_plan_publicacion_usuario: function borrar_plan_publicacion_usuario(id) {
+      var _this4 = this;
+
+      swal.fire({
+        title: '¿Deseas borrar el registro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, ¡bórralo!'
+      }).then(function (result) {
+        if (result.value) {
+          var me = _this4;
+          axios.post('/usuario/plan/publicacion/borrar', {
+            'id': id
+          }).then(function (response) {
+            me.listar_planes_publicacion();
             me.msg_success('Registro eliminado exitosamente.');
           })["catch"](function (error) {
             console.log(error);
@@ -5591,7 +5989,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     }
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('usuario', ['usuario'])),
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapMutations"])(['msg_success', 'msg_error']), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapMutations"])('usuario', ['actualizar']), {
     texto_input_fecha: function texto_input_fecha() {
       $('#fecha').prop('type', 'date');
@@ -5599,10 +5996,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     usuario_logeado: function usuario_logeado() {
       var me = this;
       axios.get('/usuario/logeado').then(function (response) {
-        if (response.data.usuario) {
-          me.actualizar(response.data.usuario);
+        if (response.data.usuario.administrador == 1) {
+          window.location.href = "/usuarios";
         } else {
-          window.location.href = "/";
+          window.location.href = "/perfil";
         }
       });
     },
@@ -5617,11 +6014,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         'email': me.inicio_sesion.email,
         'password': me.inicio_sesion.password
       }).then(function (response) {
-        if (me.usuario.administrador == 1) {
-          window.location.href = "/usuarios";
-        } else {
-          window.location.href = "/perfil";
-        }
+        me.usuario_logeado();
       })["catch"](function (error) {
         if (error.response.status == 422) {
           me.inicio_sesion.password = '';
@@ -77749,8 +78142,27 @@ var render = function() {
                               {
                                 attrs: {
                                   size: "xs",
+                                  variant: "success",
+                                  title: "Agregar plan a publicación"
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.abrir_modal_plan_publicacion_usuario(
+                                      row.item.id
+                                    )
+                                  }
+                                }
+                              },
+                              [_c("i", { staticClass: "fa fa-plus" })]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "b-button",
+                              {
+                                attrs: {
+                                  size: "xs",
                                   variant: "warning",
-                                  title: "Actualizar información"
+                                  title: "Actualizar publicación"
                                 },
                                 on: {
                                   click: function($event) {
@@ -79062,18 +79474,450 @@ var render = function() {
       ),
       _vm._v(" "),
       _c(
-        "div",
+        "b-modal",
         {
-          directives: [
-            {
-              name: "show",
-              rawName: "v-show",
-              value: _vm.items.length == 0,
-              expression: "items.length == 0"
-            }
-          ],
-          staticClass: "fixed-bottom mb-5 mr-5"
+          ref: "modal_plan_publicacion",
+          attrs: {
+            title: "Agregar plan a publicación",
+            size: "lg",
+            "no-close-on-backdrop": "",
+            scrollable: "",
+            static: ""
+          }
         },
+        [
+          _c(
+            "b-form",
+            [
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    { attrs: { cols: "8" } },
+                    [
+                      _c(
+                        "b-form-group",
+                        {
+                          attrs: {
+                            label: "Agregar plan a publicación",
+                            "label-cols-md": "4",
+                            "label-cols-lg": "4"
+                          }
+                        },
+                        [
+                          _c(
+                            "b-form-select",
+                            {
+                              attrs: {
+                                state: _vm.$v.plan_publicacion.plan_id.$dirty
+                                  ? !_vm.$v.plan_publicacion.plan_id.$error
+                                  : null,
+                                "aria-describedby": "plan-publicacion-id"
+                              },
+                              model: {
+                                value: _vm.$v.plan_publicacion.plan_id.$model,
+                                callback: function($$v) {
+                                  _vm.$set(
+                                    _vm.$v.plan_publicacion.plan_id,
+                                    "$model",
+                                    $$v
+                                  )
+                                },
+                                expression: "$v.plan_publicacion.plan_id.$model"
+                              }
+                            },
+                            [
+                              _c("option", { domProps: { value: 0 } }, [
+                                _vm._v("Selecciona una opción")
+                              ]),
+                              _vm._v(" "),
+                              _vm._l(_vm.planes, function(plan) {
+                                return _c("option", {
+                                  key: plan.id,
+                                  domProps: {
+                                    value: plan.id,
+                                    textContent: _vm._s(
+                                      plan.nombre + " - $" + plan.valor
+                                    )
+                                  }
+                                })
+                              })
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-form-invalid-feedback",
+                            { attrs: { id: "plan-publicacion-id" } },
+                            [
+                              _vm._v(
+                                "\n                            Debes asignar un plan a la publicación.\n                        "
+                              )
+                            ]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { cols: "4" } },
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          staticClass: "mt-auto",
+                          attrs: {
+                            disabled: _vm.$v.plan_publicacion.$invalid,
+                            size: "md",
+                            variant: "success",
+                            block: ""
+                          },
+                          on: { click: _vm.crear_actualizar_plan_publicacion }
+                        },
+                        [_vm._v(" Agregar plan a publicación ")]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    { staticClass: "my-1", attrs: { lg: "6" } },
+                    [
+                      _c(
+                        "b-form-group",
+                        {
+                          staticClass: "mb-0",
+                          attrs: {
+                            label: "Búsqueda",
+                            "label-cols-sm": "2",
+                            "label-align-sm": "left",
+                            "label-size": "sm",
+                            "label-for": "filterInput"
+                          }
+                        },
+                        [
+                          _c(
+                            "b-input-group",
+                            { attrs: { size: "sm" } },
+                            [
+                              _c("b-form-input", {
+                                attrs: {
+                                  type: "search",
+                                  id: "filterInput",
+                                  placeholder: "Escribe para buscar"
+                                },
+                                model: {
+                                  value: _vm.filter_plan_publicacion,
+                                  callback: function($$v) {
+                                    _vm.filter_plan_publicacion = $$v
+                                  },
+                                  expression: "filter_plan_publicacion"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "b-input-group-append",
+                                [
+                                  _c(
+                                    "b-button",
+                                    {
+                                      attrs: {
+                                        disabled: !_vm.filter_plan_publicacion
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          _vm.filter_plan_publicacion = ""
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Limpiar")]
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { staticClass: "my-1", attrs: { lg: "6" } },
+                    [
+                      _c(
+                        "b-form-group",
+                        {
+                          staticClass: "mb-0",
+                          attrs: {
+                            label: "Ordenar",
+                            "label-cols-sm": "2",
+                            "label-align-sm": "left",
+                            "label-size": "sm",
+                            "label-for": "sortBySelect"
+                          }
+                        },
+                        [
+                          _c(
+                            "b-input-group",
+                            { attrs: { size: "sm" } },
+                            [
+                              _c("b-form-select", {
+                                staticClass: "w-75",
+                                attrs: {
+                                  id: "sortBySelect",
+                                  options: _vm.sortOptions_plan_publicacion
+                                },
+                                scopedSlots: _vm._u([
+                                  {
+                                    key: "first",
+                                    fn: function() {
+                                      return [
+                                        _c("option", { attrs: { value: "" } }, [
+                                          _vm._v("Sin ordenar")
+                                        ])
+                                      ]
+                                    },
+                                    proxy: true
+                                  }
+                                ]),
+                                model: {
+                                  value: _vm.sortBy_plan_publicacion,
+                                  callback: function($$v) {
+                                    _vm.sortBy_plan_publicacion = $$v
+                                  },
+                                  expression: "sortBy_plan_publicacion"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "b-form-select",
+                                {
+                                  staticClass: "w-25",
+                                  attrs: {
+                                    size: "sm",
+                                    disabled: !_vm.sortBy_plan_publicacion
+                                  },
+                                  model: {
+                                    value: _vm.sortDesc_plan_publicacion,
+                                    callback: function($$v) {
+                                      _vm.sortDesc_plan_publicacion = $$v
+                                    },
+                                    expression: "sortDesc_plan_publicacion"
+                                  }
+                                },
+                                [
+                                  _c("option", { domProps: { value: false } }, [
+                                    _vm._v("Asc")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("option", { domProps: { value: true } }, [
+                                    _vm._v("Desc")
+                                  ])
+                                ]
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { staticClass: "my-1", attrs: { lg: "6" } },
+                    [
+                      _c(
+                        "b-form-group",
+                        {
+                          staticClass: "mb-0",
+                          attrs: {
+                            label: "Por página",
+                            "label-cols-sm": "2",
+                            "label-align-sm": "left",
+                            "label-size": "sm",
+                            "label-for": "perPageSelect"
+                          }
+                        },
+                        [
+                          _c("b-form-select", {
+                            attrs: {
+                              id: "perPageSelect",
+                              size: "sm",
+                              options: _vm.pageOptions_plan_publicacion
+                            },
+                            model: {
+                              value: _vm.perPage_plan_publicacion,
+                              callback: function($$v) {
+                                _vm.perPage_plan_publicacion = $$v
+                              },
+                              expression: "perPage_plan_publicacion"
+                            }
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { staticClass: "my-1", attrs: { lg: "6" } },
+                    [
+                      _c("b-pagination", {
+                        staticClass: "my-0",
+                        attrs: {
+                          "total-rows": _vm.totalRows_plan_publicacion,
+                          "per-page": _vm.perPage_plan_publicacion,
+                          align: "fill",
+                          size: "sm"
+                        },
+                        model: {
+                          value: _vm.currentPage_plan_publicacion,
+                          callback: function($$v) {
+                            _vm.currentPage_plan_publicacion = $$v
+                          },
+                          expression: "currentPage_plan_publicacion"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c(
+                    "b-col",
+                    [
+                      _c("b-table", {
+                        staticClass: "my-3",
+                        attrs: {
+                          "show-empty": "",
+                          small: "",
+                          striped: "",
+                          outlined: "",
+                          stacked: "sm",
+                          items: _vm.plan_publicaciones,
+                          fields: _vm.fields_plan_publicacion,
+                          "current-page": _vm.currentPage_plan_publicacion,
+                          "per-page": _vm.perPage_plan_publicacion,
+                          filter: _vm.filter_plan_publicacion,
+                          "sort-by": _vm.sortBy_plan_publicacion,
+                          "sort-desc": _vm.sortDesc_plan_publicacion
+                        },
+                        on: {
+                          "update:sortBy": function($event) {
+                            _vm.sortBy_plan_publicacion = $event
+                          },
+                          "update:sort-by": function($event) {
+                            _vm.sortBy_plan_publicacion = $event
+                          },
+                          "update:sortDesc": function($event) {
+                            _vm.sortDesc_plan_publicacion = $event
+                          },
+                          "update:sort-desc": function($event) {
+                            _vm.sortDesc_plan_publicacion = $event
+                          },
+                          filtered: _vm.onFiltered_plan_publicacion
+                        },
+                        scopedSlots: _vm._u([
+                          {
+                            key: "empty",
+                            fn: function() {
+                              return [
+                                _c("center", [
+                                  _c("h5", [_vm._v("No hay registros")])
+                                ])
+                              ]
+                            },
+                            proxy: true
+                          },
+                          {
+                            key: "cell(index)",
+                            fn: function(data) {
+                              return [
+                                _vm._v(
+                                  "\n                            " +
+                                    _vm._s(data.index + 1) +
+                                    "\n                        "
+                                )
+                              ]
+                            }
+                          },
+                          {
+                            key: "cell(estado)",
+                            fn: function(data) {
+                              return [
+                                _vm._v(
+                                  "\n                            " +
+                                    _vm._s(
+                                      data.item.estado == 0
+                                        ? "RECHAZADO"
+                                        : "APROBADO"
+                                    ) +
+                                    "\n                        "
+                                )
+                              ]
+                            }
+                          }
+                        ])
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "template",
+            { slot: "modal-footer" },
+            [
+              _c(
+                "b-button",
+                {
+                  attrs: { size: "md", variant: "danger" },
+                  on: { click: _vm.cerrar_modal_plan_publicacion }
+                },
+                [_vm._v(" Cerrar ")]
+              )
+            ],
+            1
+          )
+        ],
+        2
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "fixed-bottom mb-5 mr-5" },
         [
           _c(
             "b-button",
@@ -82637,158 +83481,685 @@ var render = function() {
                       _c(
                         "b-row",
                         [
-                          _c(
-                            "b-col",
-                            [
-                              _c(
-                                "b-form-group",
-                                {
-                                  attrs: {
-                                    label: "Plan asociado a publicación"
-                                  }
-                                },
+                          _vm.plan_publicaciones.length == 0
+                            ? _c(
+                                "b-col",
                                 [
-                                  _c(
-                                    "b-form-select",
-                                    {
-                                      attrs: {
-                                        state: _vm.$v.publicacion.plan_id.$dirty
-                                          ? !_vm.$v.publicacion.plan_id.$error
-                                          : null,
-                                        "aria-describedby":
-                                          "publicacion-plan-id"
-                                      },
-                                      model: {
-                                        value:
-                                          _vm.$v.publicacion.plan_id.$model,
-                                        callback: function($$v) {
-                                          _vm.$set(
-                                            _vm.$v.publicacion.plan_id,
-                                            "$model",
-                                            $$v
-                                          )
+                                  _vm.publicacion.id == 0
+                                    ? _c(
+                                        "b-form-group",
+                                        {
+                                          attrs: {
+                                            label: "Plan asociado a publicación"
+                                          }
                                         },
-                                        expression:
-                                          "$v.publicacion.plan_id.$model"
-                                      }
+                                        [
+                                          _c(
+                                            "b-form-select",
+                                            {
+                                              attrs: {
+                                                state: _vm.$v.publicacion
+                                                  .plan_id.$dirty
+                                                  ? !_vm.$v.publicacion.plan_id
+                                                      .$error
+                                                  : null,
+                                                "aria-describedby":
+                                                  "publicacion-plan-id"
+                                              },
+                                              model: {
+                                                value:
+                                                  _vm.$v.publicacion.plan_id
+                                                    .$model,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.$v.publicacion.plan_id,
+                                                    "$model",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression:
+                                                  "$v.publicacion.plan_id.$model"
+                                              }
+                                            },
+                                            [
+                                              _c(
+                                                "option",
+                                                { domProps: { value: 0 } },
+                                                [
+                                                  _vm._v(
+                                                    "Selecciona una opción"
+                                                  )
+                                                ]
+                                              ),
+                                              _vm._v(" "),
+                                              _vm._l(_vm.planes, function(
+                                                plan
+                                              ) {
+                                                return _c("option", {
+                                                  key: plan.id,
+                                                  domProps: {
+                                                    value: plan.id,
+                                                    textContent: _vm._s(
+                                                      plan.nombre +
+                                                        " - $" +
+                                                        plan.valor
+                                                    )
+                                                  }
+                                                })
+                                              })
+                                            ],
+                                            2
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "b-form-invalid-feedback",
+                                            {
+                                              attrs: {
+                                                id: "publicacion-plan-id"
+                                              }
+                                            },
+                                            [
+                                              _vm._v(
+                                                "\n                                    Debes asignar un plan a la publicación.\n                                "
+                                              )
+                                            ]
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-form-group",
+                                    {
+                                      attrs: { label: "Título de publicación" }
                                     },
                                     [
-                                      _c("option", { domProps: { value: 0 } }, [
-                                        _vm._v("Selecciona una opción")
-                                      ]),
-                                      _vm._v(" "),
-                                      _vm._l(_vm.planes, function(plan) {
-                                        return _c("option", {
-                                          key: plan.id,
-                                          domProps: {
-                                            value: plan.id,
-                                            textContent: _vm._s(
-                                              plan.nombre + " - $" + plan.valor
+                                      _c("b-form-input", {
+                                        attrs: {
+                                          state: _vm.$v.publicacion.titulo
+                                            .$dirty
+                                            ? !_vm.$v.publicacion.titulo.$error
+                                            : null,
+                                          "aria-describedby":
+                                            "publicacion-titulo"
+                                        },
+                                        model: {
+                                          value:
+                                            _vm.$v.publicacion.titulo.$model,
+                                          callback: function($$v) {
+                                            _vm.$set(
+                                              _vm.$v.publicacion.titulo,
+                                              "$model",
+                                              $$v
                                             )
-                                          }
-                                        })
-                                      })
+                                          },
+                                          expression:
+                                            "$v.publicacion.titulo.$model"
+                                        }
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-form-invalid-feedback",
+                                        { attrs: { id: "publicacion-titulo" } },
+                                        [
+                                          _vm._v(
+                                            "\n                                    Campo de alfabético, mínimo de 3 caracteres.\n                                "
+                                          )
+                                        ]
+                                      )
                                     ],
-                                    2
+                                    1
                                   ),
                                   _vm._v(" "),
                                   _c(
-                                    "b-form-invalid-feedback",
-                                    { attrs: { id: "publicacion-plan-id" } },
+                                    "b-form-group",
+                                    { attrs: { label: "¿Qué ofreces?" } },
                                     [
-                                      _vm._v(
-                                        "\n                                    Debes asignar un plan a la publicación.\n                                "
+                                      _c("b-form-textarea", {
+                                        attrs: {
+                                          state: _vm.$v.publicacion.descripcion
+                                            .$dirty
+                                            ? !_vm.$v.publicacion.descripcion
+                                                .$error
+                                            : null,
+                                          "aria-describedby":
+                                            "publicacion-descripcion",
+                                          rows: "3",
+                                          "max-rows": "6"
+                                        },
+                                        model: {
+                                          value:
+                                            _vm.$v.publicacion.descripcion
+                                              .$model,
+                                          callback: function($$v) {
+                                            _vm.$set(
+                                              _vm.$v.publicacion.descripcion,
+                                              "$model",
+                                              $$v
+                                            )
+                                          },
+                                          expression:
+                                            "$v.publicacion.descripcion.$model"
+                                        }
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-form-invalid-feedback",
+                                        {
+                                          attrs: {
+                                            id: "publicacion-descripcion"
+                                          }
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                                    Campo de alfabético, mínimo de 20 caracteres.\n                                "
+                                          )
+                                        ]
                                       )
-                                    ]
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "b-form-group",
-                                { attrs: { label: "Título de publicación" } },
-                                [
-                                  _c("b-form-input", {
-                                    attrs: {
-                                      state: _vm.$v.publicacion.titulo.$dirty
-                                        ? !_vm.$v.publicacion.titulo.$error
-                                        : null,
-                                      "aria-describedby": "publicacion-titulo"
-                                    },
-                                    model: {
-                                      value: _vm.$v.publicacion.titulo.$model,
-                                      callback: function($$v) {
-                                        _vm.$set(
-                                          _vm.$v.publicacion.titulo,
-                                          "$model",
-                                          $$v
-                                        )
-                                      },
-                                      expression: "$v.publicacion.titulo.$model"
-                                    }
-                                  }),
-                                  _vm._v(" "),
-                                  _c(
-                                    "b-form-invalid-feedback",
-                                    { attrs: { id: "publicacion-titulo" } },
-                                    [
-                                      _vm._v(
-                                        "\n                                    Campo de alfabético, mínimo de 3 caracteres.\n                                "
-                                      )
-                                    ]
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "b-form-group",
-                                { attrs: { label: "¿Qué ofreces?" } },
-                                [
-                                  _c("b-form-textarea", {
-                                    attrs: {
-                                      state: _vm.$v.publicacion.descripcion
-                                        .$dirty
-                                        ? !_vm.$v.publicacion.descripcion.$error
-                                        : null,
-                                      "aria-describedby":
-                                        "publicacion-descripcion",
-                                      rows: "3",
-                                      "max-rows": "6"
-                                    },
-                                    model: {
-                                      value:
-                                        _vm.$v.publicacion.descripcion.$model,
-                                      callback: function($$v) {
-                                        _vm.$set(
-                                          _vm.$v.publicacion.descripcion,
-                                          "$model",
-                                          $$v
-                                        )
-                                      },
-                                      expression:
-                                        "$v.publicacion.descripcion.$model"
-                                    }
-                                  }),
-                                  _vm._v(" "),
-                                  _c(
-                                    "b-form-invalid-feedback",
-                                    {
-                                      attrs: { id: "publicacion-descripcion" }
-                                    },
-                                    [
-                                      _vm._v(
-                                        "\n                                    Campo de alfabético, mínimo de 20 caracteres.\n                                "
-                                      )
-                                    ]
+                                    ],
+                                    1
                                   )
                                 ],
                                 1
                               )
-                            ],
-                            1
-                          ),
+                            : _c(
+                                "b-col",
+                                [
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-col",
+                                        [
+                                          _c(
+                                            "b-form-group",
+                                            {
+                                              attrs: {
+                                                label:
+                                                  "Plan asociado a publicación"
+                                              }
+                                            },
+                                            [
+                                              _c(
+                                                "b-form-select",
+                                                {
+                                                  attrs: {
+                                                    state: _vm.$v
+                                                      .plan_publicacion.plan_id
+                                                      .$dirty
+                                                      ? !_vm.$v.plan_publicacion
+                                                          .plan_id.$error
+                                                      : null,
+                                                    "aria-describedby":
+                                                      "plan-publicacion-id"
+                                                  },
+                                                  model: {
+                                                    value:
+                                                      _vm.$v.plan_publicacion
+                                                        .plan_id.$model,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.$v.plan_publicacion
+                                                          .plan_id,
+                                                        "$model",
+                                                        $$v
+                                                      )
+                                                    },
+                                                    expression:
+                                                      "$v.plan_publicacion.plan_id.$model"
+                                                  }
+                                                },
+                                                [
+                                                  _c(
+                                                    "option",
+                                                    { domProps: { value: 0 } },
+                                                    [
+                                                      _vm._v(
+                                                        "Selecciona una opción"
+                                                      )
+                                                    ]
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _vm._l(_vm.planes, function(
+                                                    plan
+                                                  ) {
+                                                    return _c("option", {
+                                                      key: plan.id,
+                                                      domProps: {
+                                                        value: plan.id,
+                                                        textContent: _vm._s(
+                                                          plan.nombre +
+                                                            " - $" +
+                                                            plan.valor
+                                                        )
+                                                      }
+                                                    })
+                                                  })
+                                                ],
+                                                2
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "b-form-invalid-feedback",
+                                                {
+                                                  attrs: {
+                                                    id: "plan-publicacion-id"
+                                                  }
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            Debes asignar un plan a la publicación.\n                                        "
+                                                  )
+                                                ]
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-col",
+                                        {
+                                          staticClass: "my-1",
+                                          attrs: { lg: "6" }
+                                        },
+                                        [
+                                          _c(
+                                            "b-form-group",
+                                            {
+                                              staticClass: "mb-0",
+                                              attrs: {
+                                                label: "Búsqueda",
+                                                "label-cols-sm": "2",
+                                                "label-align-sm": "left",
+                                                "label-size": "sm",
+                                                "label-for": "filterInput"
+                                              }
+                                            },
+                                            [
+                                              _c(
+                                                "b-input-group",
+                                                { attrs: { size: "sm" } },
+                                                [
+                                                  _c("b-form-input", {
+                                                    attrs: {
+                                                      type: "search",
+                                                      id: "filterInput",
+                                                      placeholder:
+                                                        "Escribe para buscar"
+                                                    },
+                                                    model: {
+                                                      value:
+                                                        _vm.filter_plan_publicacion,
+                                                      callback: function($$v) {
+                                                        _vm.filter_plan_publicacion = $$v
+                                                      },
+                                                      expression:
+                                                        "filter_plan_publicacion"
+                                                    }
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "b-input-group-append",
+                                                    [
+                                                      _c(
+                                                        "b-button",
+                                                        {
+                                                          attrs: {
+                                                            disabled: !_vm.filter_plan_publicacion
+                                                          },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              _vm.filter_plan_publicacion =
+                                                                ""
+                                                            }
+                                                          }
+                                                        },
+                                                        [_vm._v("Limpiar")]
+                                                      )
+                                                    ],
+                                                    1
+                                                  )
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-col",
+                                        {
+                                          staticClass: "my-1",
+                                          attrs: { lg: "6" }
+                                        },
+                                        [
+                                          _c(
+                                            "b-form-group",
+                                            {
+                                              staticClass: "mb-0",
+                                              attrs: {
+                                                label: "Ordenar",
+                                                "label-cols-sm": "2",
+                                                "label-align-sm": "left",
+                                                "label-size": "sm",
+                                                "label-for": "sortBySelect"
+                                              }
+                                            },
+                                            [
+                                              _c(
+                                                "b-input-group",
+                                                { attrs: { size: "sm" } },
+                                                [
+                                                  _c("b-form-select", {
+                                                    staticClass: "w-75",
+                                                    attrs: {
+                                                      id: "sortBySelect",
+                                                      options:
+                                                        _vm.sortOptions_plan_publicacion
+                                                    },
+                                                    scopedSlots: _vm._u([
+                                                      {
+                                                        key: "first",
+                                                        fn: function() {
+                                                          return [
+                                                            _c(
+                                                              "option",
+                                                              {
+                                                                attrs: {
+                                                                  value: ""
+                                                                }
+                                                              },
+                                                              [
+                                                                _vm._v(
+                                                                  "Sin ordenar"
+                                                                )
+                                                              ]
+                                                            )
+                                                          ]
+                                                        },
+                                                        proxy: true
+                                                      }
+                                                    ]),
+                                                    model: {
+                                                      value:
+                                                        _vm.sortBy_plan_publicacion,
+                                                      callback: function($$v) {
+                                                        _vm.sortBy_plan_publicacion = $$v
+                                                      },
+                                                      expression:
+                                                        "sortBy_plan_publicacion"
+                                                    }
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "b-form-select",
+                                                    {
+                                                      staticClass: "w-25",
+                                                      attrs: {
+                                                        size: "sm",
+                                                        disabled: !_vm.sortBy_plan_publicacion
+                                                      },
+                                                      model: {
+                                                        value:
+                                                          _vm.sortDesc_plan_publicacion,
+                                                        callback: function(
+                                                          $$v
+                                                        ) {
+                                                          _vm.sortDesc_plan_publicacion = $$v
+                                                        },
+                                                        expression:
+                                                          "sortDesc_plan_publicacion"
+                                                      }
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "option",
+                                                        {
+                                                          domProps: {
+                                                            value: false
+                                                          }
+                                                        },
+                                                        [_vm._v("Asc")]
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "option",
+                                                        {
+                                                          domProps: {
+                                                            value: true
+                                                          }
+                                                        },
+                                                        [_vm._v("Desc")]
+                                                      )
+                                                    ]
+                                                  )
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-col",
+                                        {
+                                          staticClass: "my-1",
+                                          attrs: { lg: "6" }
+                                        },
+                                        [
+                                          _c(
+                                            "b-form-group",
+                                            {
+                                              staticClass: "mb-0",
+                                              attrs: {
+                                                label: "Por página",
+                                                "label-cols-sm": "2",
+                                                "label-align-sm": "left",
+                                                "label-size": "sm",
+                                                "label-for": "perPageSelect"
+                                              }
+                                            },
+                                            [
+                                              _c("b-form-select", {
+                                                attrs: {
+                                                  id: "perPageSelect",
+                                                  size: "sm",
+                                                  options:
+                                                    _vm.pageOptions_plan_publicacion
+                                                },
+                                                model: {
+                                                  value:
+                                                    _vm.perPage_plan_publicacion,
+                                                  callback: function($$v) {
+                                                    _vm.perPage_plan_publicacion = $$v
+                                                  },
+                                                  expression:
+                                                    "perPage_plan_publicacion"
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-col",
+                                        {
+                                          staticClass: "my-1",
+                                          attrs: { lg: "6" }
+                                        },
+                                        [
+                                          _c("b-pagination", {
+                                            staticClass: "my-0",
+                                            attrs: {
+                                              "total-rows":
+                                                _vm.totalRows_plan_publicacion,
+                                              "per-page":
+                                                _vm.perPage_plan_publicacion,
+                                              align: "fill",
+                                              size: "sm"
+                                            },
+                                            model: {
+                                              value:
+                                                _vm.currentPage_plan_publicacion,
+                                              callback: function($$v) {
+                                                _vm.currentPage_plan_publicacion = $$v
+                                              },
+                                              expression:
+                                                "currentPage_plan_publicacion"
+                                            }
+                                          })
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-col",
+                                        [
+                                          _c("b-table", {
+                                            staticClass: "my-3",
+                                            attrs: {
+                                              "show-empty": "",
+                                              small: "",
+                                              striped: "",
+                                              outlined: "",
+                                              stacked: "sm",
+                                              items: _vm.plan_publicaciones,
+                                              fields:
+                                                _vm.fields_plan_publicacion,
+                                              "current-page":
+                                                _vm.currentPage_plan_publicacion,
+                                              "per-page":
+                                                _vm.perPage_plan_publicacion,
+                                              filter:
+                                                _vm.filter_plan_publicacion,
+                                              "sort-by":
+                                                _vm.sortBy_plan_publicacion,
+                                              "sort-desc":
+                                                _vm.sortDesc_plan_publicacion
+                                            },
+                                            on: {
+                                              "update:sortBy": function(
+                                                $event
+                                              ) {
+                                                _vm.sortBy_plan_publicacion = $event
+                                              },
+                                              "update:sort-by": function(
+                                                $event
+                                              ) {
+                                                _vm.sortBy_plan_publicacion = $event
+                                              },
+                                              "update:sortDesc": function(
+                                                $event
+                                              ) {
+                                                _vm.sortDesc_plan_publicacion = $event
+                                              },
+                                              "update:sort-desc": function(
+                                                $event
+                                              ) {
+                                                _vm.sortDesc_plan_publicacion = $event
+                                              },
+                                              filtered:
+                                                _vm.onFiltered_plan_publicacion
+                                            },
+                                            scopedSlots: _vm._u([
+                                              {
+                                                key: "empty",
+                                                fn: function() {
+                                                  return [
+                                                    _c("center", [
+                                                      _c("h5", [
+                                                        _vm._v(
+                                                          "No hay registros"
+                                                        )
+                                                      ])
+                                                    ])
+                                                  ]
+                                                },
+                                                proxy: true
+                                              },
+                                              {
+                                                key: "cell(index)",
+                                                fn: function(data) {
+                                                  return [
+                                                    _vm._v(
+                                                      "\n                                            " +
+                                                        _vm._s(data.index + 1) +
+                                                        "\n                                        "
+                                                    )
+                                                  ]
+                                                }
+                                              },
+                                              {
+                                                key: "cell(acciones)",
+                                                fn: function(row) {
+                                                  return [
+                                                    _c(
+                                                      "b-button",
+                                                      {
+                                                        attrs: {
+                                                          size: "xs",
+                                                          variant: "danger",
+                                                          title:
+                                                            "Eliminar registro"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            return _vm.borrar_plan_publicacion_usuario(
+                                                              row.item.id
+                                                            )
+                                                          }
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("i", {
+                                                          staticClass:
+                                                            "fa fa-trash"
+                                                        })
+                                                      ]
+                                                    )
+                                                  ]
+                                                }
+                                              }
+                                            ])
+                                          })
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              ),
                           _vm._v(" "),
                           _c(
                             "b-col",
@@ -83112,6 +84483,30 @@ var render = function() {
                                                   {
                                                     attrs: {
                                                       size: "xs",
+                                                      variant: "success",
+                                                      title:
+                                                        "Agregar plan a publicación"
+                                                    },
+                                                    on: {
+                                                      click: function($event) {
+                                                        return _vm.cargar_datos_plan_usuario(
+                                                          row.item.id
+                                                        )
+                                                      }
+                                                    }
+                                                  },
+                                                  [
+                                                    _c("i", {
+                                                      staticClass: "fa fa-plus"
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "b-button",
+                                                  {
+                                                    attrs: {
+                                                      size: "xs",
                                                       variant: "warning",
                                                       title:
                                                         "Actualizar información"
@@ -83213,8 +84608,35 @@ var render = function() {
                     {
                       name: "show",
                       rawName: "v-show",
-                      value: _vm.menu_usuario == 3 && _vm.publicacion.id == 0,
-                      expression: "menu_usuario == 3 && publicacion.id == 0"
+                      value:
+                        _vm.menu_usuario == 3 &&
+                        _vm.plan_publicaciones.length > 0,
+                      expression:
+                        "menu_usuario == 3 && plan_publicaciones.length > 0"
+                    }
+                  ],
+                  attrs: {
+                    disabled: _vm.$v.plan_publicacion.$invalid,
+                    size: "md",
+                    variant: "success"
+                  },
+                  on: { click: _vm.crear_actualizar_plan_publicacion }
+                },
+                [_vm._v(" Agregar plan a publicación ")]
+              ),
+              _vm._v(" "),
+              _c(
+                "b-button",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value:
+                        _vm.menu_usuario == 3 &&
+                        _vm.plan_publicaciones.length == 0,
+                      expression:
+                        "menu_usuario == 3  && plan_publicaciones.length == 0"
                     }
                   ],
                   attrs: {
