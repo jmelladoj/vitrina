@@ -11,12 +11,19 @@
 |
 */
 
+use App\General;
 use App\Rubro;
 
 Route::get('/', function () {
     $rubros = Rubro::get()->sortByDesc('usuarios_asociados')->take(8);
     return view('welcome')->with('rubros', $rubros);
 });
+
+Route::get('/politicas', function () {
+    $politicas = General::find(1);
+    return view('politicas')->with('politicas', $politicas); 
+});
+
 
 Route::get('/publicacion', function () {
     return view('publicacion');
@@ -30,7 +37,7 @@ Route::post('/publicacion/finalizar','PlanPublicacionController@finalizar')->nam
 
 Route::get('/resultados/{comuna_id}/{rubro}', 'PublicacionController@index')->name('Listar rubros home');
 Route::post('/publicaciones/busqueda/usuario', 'PublicacionController@index_buscador')->name('Listar rubros home');
-Route::get('/publicacion/{id}', 'PublicacionController@ver')->name('Ver publicacion');
+Route::get('/publicacion/{id}', 'PublicacionController@ver')->name('Ver publicacion'); 
 
 Route::get('/rubros/home', 'RubroController@index_home')->name('Listar rubros home');
 Route::get('/publicaciones/rubro/{id}', 'RubroController@index_publicaciones')->name('Listar publicaciones por rubro');
@@ -38,6 +45,9 @@ Route::get('/publicaciones/rubro/{id}', 'RubroController@index_publicaciones')->
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/general/politicas', 'HomeController@index_politicas')->name('index políticas');
+Route::post('/general/politicas', 'HomeController@actualizar_politicas')->name('actualizar políticas');
 
 Route::get('/usuario/logeado', 'UsuarioController@logeado')->name('Usuario logeado');
 Route::get('/usuarios/unico/{texto}', 'UsuarioController@validar_unico')->name('Validar usuario inexistente');
@@ -89,6 +99,9 @@ Route::post('/usuario/publicacion/borrar', 'UsuarioController@borrar_publicacion
 Route::post('/usuario/plan/publicacion/borrar', 'UsuarioController@borrar_plan_publicaciones')->name('Borrar plan publicaciones usuario');
 Route::post('/usuario/crear/plan/publicacion', 'UsuarioController@agregar_plan_publicacion')->name('Agregar plan publicaciones usuario');
 Route::post('/usuario/pagar/plan/publicacion', 'UsuarioController@pagar_plan_publicacion')->name('Pagar plan publicaciones usuario');
+
+Route::get('/imagenes/usuario/{id}', 'ImagenPublicacionController@index')->name('Listar imagenes publicacion');
+Route::post('/usuario/imagen/eliminar', 'ImagenPublicacionController@borrar')->name('Borrar imagen de publicacion');
 
 Route::post('/publicacion/procesar','PlanPublicacionController@procesar')->name('Procesar publicacion');
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Publicacion;
 use App\Rubro;
+use App\RubroUsuario;
 use Illuminate\Http\Request;
 
 class RubroController extends Controller

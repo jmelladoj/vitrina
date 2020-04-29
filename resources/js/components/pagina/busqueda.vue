@@ -2,15 +2,15 @@
     <div class="col-md-6 col-xs-12 p-left p-right">
         <div class="col-md-4 col-xs-12 p-left p-right">
             <div class="searching">
-                <vue-bootstrap-typeahead ref="typeahead" :data="comunas" :serializer="c => c.nombre" placeholder="¿En qué lugar?"
-                    :maxMatches="10"
-                    @hit="comuna_seleccionada"
-                />
+                <input type="text" v-model="formulario.rubro" class="form-control borde-input" placeholder="¿Qué buscas?">
             </div>
         </div>
         <div class="col-md-4 col-xs-12 p-left p-right">
             <div class="searching">
-                <input type="text" v-model="formulario.rubro" class="form-control borde-input" placeholder="¿Qué buscas?">
+                <vue-bootstrap-typeahead ref="typeahead" :data="comunas" :serializer="c => c.nombre" placeholder="¿En qué lugar?"
+                    :maxMatches="10"
+                    @hit="comuna_seleccionada"
+                />
             </div>
         </div>
         <div class="col-md-4 col-xs-12 p-left p-right mt-3">

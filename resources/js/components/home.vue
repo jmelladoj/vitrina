@@ -41,6 +41,7 @@
                         <li><router-link to="/rubros"><i class="fa fa-list"></i> Rubros</router-link> </li>
                         <li><router-link to="/provincias"><i class="fa fa-building"></i> Provincias</router-link> </li>
                         <li><router-link to="/planes"><i class="fa fa-usd"></i> Planes</router-link> </li>
+                        <li><router-link to="/general"><i class="fa fa-lock"></i> Políticas</router-link> </li>
 
                         <li @click="cerrar_session">
                             <a class="waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">

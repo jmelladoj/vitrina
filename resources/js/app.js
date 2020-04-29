@@ -16,6 +16,9 @@ import BootstrapVue from 'bootstrap-vue'
 import VueRouter from 'vue-router'
 import VueCurrencyFilter from 'vue-currency-filter'
 import VueBootstrapTypeahead from 'vue-bootstrap-typeahead'
+import Vue from 'vue';
+import CKEditor from '@ckeditor/ckeditor5-vue';
+
 
 //Estilos
 import 'vue-toast-notification/dist/index.css'
@@ -29,7 +32,7 @@ Vue.use(VueToast)
 Vue.use(Vuex)
 Vue.use(VueRouter)
 Vue.component('vue-bootstrap-typeahead', VueBootstrapTypeahead)
-
+Vue.use(CKEditor);
 
 Vue.use(VueCurrencyFilter,{
     symbol : '$',

@@ -294,7 +294,7 @@
                 }).then(function (response) {
                     me.usuario_logeado()
                 }).catch(function (error) {
-                    if (error.response.status == 422){
+                    if (error && error.response.status == 422){
                         me.inicio_sesion.password = ''
                         me.msg_error('Las credenciales introducidas son incorrectas.')
                     }

@@ -45,4 +45,8 @@ class Publicacion extends Model
     public function getExpiraAttribute(){
         return $this->created_at->addMonth($this->total_meses_ventas())->format('Y-m-d H:m:s');
     }
+
+    public function imagenes_publicacion(){
+        return $this->hasMany(ImagenPublicacion::class, 'publicacion_id');
+    }
 }

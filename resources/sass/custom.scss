@@ -35,6 +35,6 @@
     max-height: 180px;
 }
 
-.custom-file-input:lang(es) ~ .custom-file-label::after {
+.custom-file-input:lang(en) ~ .custom-file-label::after {
     content: 'Buscar' !important;
 }

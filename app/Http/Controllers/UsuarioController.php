@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\RubroUsuario;
 use App\ComunaUsuario;
+use App\ImagenPublicacion;
 use App\Mail\RecuperarClave;
 use App\Mail\UsuarioNuevo;
 use App\Plan;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Freshwork\Transbank\CertificationBagFactory;
 use Freshwork\Transbank\TransbankServiceFactory;
 use Freshwork\Transbank\RedirectorHelper;
+use Exception;
 
 class UsuarioController extends Controller
 {
@@ -45,7 +47,7 @@ class UsuarioController extends Controller
     }
 
     public function index_publicaciones_usuario($id){
-        return ['publicaciones' => Publicacion::where('user_id', $id)->orderBy('titulo', 'asc')->get()];
+        return ['publicaciones' => Publicacion::where('user_id', $id)->orderBy('titulo', 'asc')->with('imagenes_publicacion')->get()];
     }
 
     public function index_plan_publicaciones_usuario($id){
@@ -139,23 +141,41 @@ class UsuarioController extends Controller
     }
 
     public function agregar_publicaciones(Request $request){
-        DB::transaction(function () use ($request) {
-            $ventas = PlanPublicacion::where('user_id', $request->user_id)->get()->count();
+        $ventas = PlanPublicacion::where('user_id', $request->user_id)->get()->count();
+        $plan = Plan::find($request->plan_id);
 
-            $publicacion = Publicacion::updateOrCreate(
-                [
-                    'id' => $request->id
-                ],
-                [
-                    'titulo' => $request->titulo,
-                    'descripcion' => $request->descripcion,
-                    'user_id' => $request->user_id
-                ]
-            );
+        $publicacion = Publicacion::updateOrCreate(
+            [
+                'id' => $request->id
+            ],
+            [
+                'titulo' => $request->titulo,
+                'descripcion' => $request->descripcion,
+                'user_id' => $request->user_id
+            ]
+        );
 
-            if($request->plan_id != null){
-                $plan = Plan::find($request->plan_id);
+        if($request->cantidad_imagenes > 0){
+            for($i = 0; $i < $request->cantidad_imagenes; $i++){
+                if ($request->hasFile('imagen_' . $i)) {
+                    ImagenPublicacion::create([
+                        'url' => 'storage/' . Storage::disk('public')->putFile('publicaciones', $request->file('imagen_' . $i)),
+                        'perfil' => $i == $request->indice_perfil ? 1 : 0,
+                        'publicacion_id' => $publicacion->id
+                    ]);
+                }
 
+            }
+        }
+
+        if($plan){
+            $bag = CertificationBagFactory::integrationWebpayNormal();
+            $plus = TransbankServiceFactory::normal($bag);
+            $plus->addTransactionDetail($plan->valor, ($ventas + 1));
+    
+            $response = $plus->initTransaction(url('/publicacion/procesar'), url('/publicacion/finalizar'));
+    
+            if($plan){
                 PlanPublicacion::create([
                     'nombre_plan' => $plan->nombre,
                     'duracion' => $plan->duracion,
@@ -163,10 +183,17 @@ class UsuarioController extends Controller
                     'plan_id' => $plan->id,
                     'publicacion_id' => $publicacion->id,
                     'user_id' => $request->user_id,
-                    'estado' => $ventas == 0 ? 1 : 0
+                    'token' => $response->token
                 ]);
+        
             }
-        });
+    
+    
+            return [
+                'url' => $response->url,
+                'token' => $response->token
+            ];
+        }
 
     }
 

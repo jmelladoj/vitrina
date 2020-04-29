@@ -24,6 +24,9 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^18.0.0",
+        "@ckeditor/ckeditor5-upload": "^18.0.0",
+        "@ckeditor/ckeditor5-vue": "^1.0.1",
         "bootstrap-vue": "^2.1.0",
         "sweetalert2": "^9.5.4",
         "vue-bootstrap-typeahead": "^0.2.6",

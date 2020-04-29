@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\General;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -25,4 +26,16 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function index_politicas() {
+        return ['politicas' => General::find(1)];
+    }
+
+    public function actualizar_politicas(Request $request) {
+        $general = General::find(1);
+        $general->politicas = $request->politicas;
+        $general->save();
+    }
+    
+
 }

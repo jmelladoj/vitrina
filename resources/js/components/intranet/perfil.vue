@@ -6,6 +6,27 @@
             </template>
         </titulo-pagina>
 
+        <b-row :if="modal_perfil || modal_comunas || modal_rubros">
+            <b-col>
+                <b-card>
+                    <b-row>
+                        <b-col>
+                            <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros">
+                                <p>
+                                    Recuerda que mientras más completo este tu perfil, tienes más posibildidades de aparecen en las búsquedas.
+                                </p>
+                                <p>    
+                                    <label v-if="modal_perfil"><b>* </b>Falta completar información en <b><u>foto de perfil y redes sociales</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(0)"><i class="fa fa-cog"></i> Configurar información</b-button></label><br>
+                                    <label v-if="modal_comunas"><b>* </b>Debes de ingresar al menos <b><u>una comuna dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(1)"><i class="fa fa-cog"></i> Configurar comunas</b-button></label><br>
+                                    <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(2)"><i class="fa fa-cog"></i> Configurar rubros</b-button></label>
+                                </p>
+                            </b-alert>
+                        </b-col>
+                    </b-row>
+                </b-card>
+            </b-col>
+        </b-row>
+
         <b-row>
             <b-col>
                 <b-card>
@@ -73,8 +94,23 @@
 
         <b-modal ref="modal_informacion_usuario" title="Configurar perfil" size="xl" no-close-on-backdrop scrollable static>
             <b-form>
+                <b-row :show="modal_perfil || modal_comunas  || modal_rubros ">
+                    <b-col>
+                        <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros">
+                            <p>
+                                Recuerda que mientras más completo este tu perfil, tienes más posibildidades de aparecen en las búsquedas.
+                            </p>
+                            <p>    
+                                <label v-if="modal_perfil"><b>* </b>Falta completar información en <b><u>foto de perfil y redes sociales</u></b></label><br>
+                                <label v-if="modal_comunas"><b>* </b>Debes de ingresar al menos <b><u>una comuna dentro de tu perfil</u></b></label><br>
+                                <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b></label>
+                            </p>
+                        </b-alert>
+                    </b-col>
+                </b-row>
+
                 <b-tabs content-class="mt-3" justified active-nav-item-class="btn-info font-weight-bold">
-                    <b-tab title="Foto perfil y redes sociales" active @click="menu_usuario = 0">
+                    <b-tab title="Foto perfil y redes sociales" :active="menu_usuario == 0" @click="menu_usuario = 0">
                         <b-row>
                             <b-col cols="4">
                                 <b-img center :src="usuario.perfil_url" class="mb-5 limite-altura" fluid alt="Imagen de perfil"></b-img>
@@ -94,33 +130,48 @@
                                         v-model="$v.usuario.linkedin.$model"
                                         :state="$v.usuario.linkedin.$dirty ? !$v.usuario.linkedin.$error : null"
                                         aria-describedby="usuario-link-linkedin"
+                                        :disabled="usuario.usuario_pago == 0"
                                     ></b-form-input>
 
                                     <b-form-invalid-feedback id="usuario-link-linkedin">
                                         Procura ingresar el link de tu red social y sin espacios.
                                     </b-form-invalid-feedback>
+
+                                    <span class="text-danger" v-show="usuario.usuario_pago == 0">
+                                        Recuerda que para acceder a este campo, debes de tener una membresía activa.
+                                    </span>
                                 </b-form-group>
                                 <b-form-group label="Link facebook" label-cols-md="2" label-cols-lg="2">
                                     <b-form-input
                                         v-model="$v.usuario.facebook.$model"
                                         :state="$v.usuario.facebook.$dirty ? !$v.usuario.facebook.$error : null"
                                         aria-describedby="usuario-facebook"
+                                        :disabled="usuario.usuario_pago == 0"
                                     ></b-form-input>
 
                                     <b-form-invalid-feedback id="usuario-link-facebook">
                                         Procura ingresar el link de tu red social y sin espacios.
                                     </b-form-invalid-feedback>
+
+                                    <span class="text-danger" v-show="usuario.usuario_pago == 0">
+                                        Recuerda que para acceder a este campo, debes de tener una membresía activa.
+                                    </span>
                                 </b-form-group>
                                 <b-form-group label="Link instagram" label-cols-md="2" label-cols-lg="2">
                                     <b-form-input
                                         v-model="$v.usuario.instagram.$model"
                                         :state="$v.usuario.instagram.$dirty ? !$v.usuario.instagram.$error : null"
                                         aria-describedby="usuario-instagram"
+                                        :disabled="usuario.usuario_pago == 0"
                                     ></b-form-input>
 
                                     <b-form-invalid-feedback id="usuario-link-instagram">
                                         Procura ingresar el link de tu red social y sin espacios.
                                     </b-form-invalid-feedback>
+
+                                    <span class="text-danger" v-show="usuario.usuario_pago == 0">
+                                        Recuerda que para acceder a este campo, debes de tener una membresía activa.
+                                    </span>
                                 </b-form-group>
                                 <b-form-group label="Teléfono whatsapp" label-cols-md="2" label-cols-lg="2">
                                     <b-form-input
@@ -136,7 +187,7 @@
                             </b-col>
                         </b-row>
                     </b-tab>
-                    <b-tab title="Comunas" @click="menu_usuario = 1">
+                    <b-tab title="Comunas" :active="menu_usuario == 1" @click="menu_usuario = 1">
                         <b-row>
                             <b-col>
                                 <b-form-group label="Selección de comuna :" label-cols-md="2" label-cols-lg="2">
@@ -210,7 +261,7 @@
                             </b-col>
                         </b-row>
                     </b-tab>
-                    <b-tab title="Rubros" @click="menu_usuario = 2">
+                    <b-tab title="Rubros" :active="menu_usuario == 2" @click="menu_usuario = 2">
                         <b-row>
                             <b-col cols="10">
                                 <b-form-group label="Selección de rubro :" label-cols-md="2" label-cols-lg="2">
@@ -289,6 +340,9 @@
                             </b-col>
                         </b-row>
                     </b-tab>
+                    <b-tab title="Certificaciones y documentos" :active="menu_usuario == 3" @click="menu_usuario = 2">
+
+                    </b-tab>
                 </b-tabs>
             </b-form>
 
@@ -296,12 +350,61 @@
                 <b-button :disabled="$v.usuario.$invalid" v-show="menu_usuario == 0" size="md" variant="success" @click="cambiar_redes_sociales"> Actualizar información </b-button>
 
                 <b-button size="md" variant="danger" @click="cerrar_modal_informacion_usuario"> Cerrar </b-button>
+                <b-button size="md" variant="warning" @click="menu_usuario--" v-show="menu_usuario < 3 && menu_usuario > 0"> Paso anterior </b-button>
+                <b-button size="md" variant="info" @click="menu_usuario++" v-show="menu_usuario > -1 && menu_usuario < 2"> Siguiente paso </b-button>
             </template>
         </b-modal>
 
         <b-modal ref="modal_publicacion" :title="modal_publicacion.titulo" size="md" no-close-on-backdrop scrollable static>
             <b-form>
-                <!--<b-form-group label="Plan asociado a publicación d-none">
+
+                <b-row :if="items.length == 0">
+                    <b-col>
+                        <b-alert variant="success" show>
+                            <p>
+                                ¡Bienvenido a Vitrinalaboral.cl!, ahora que eres parte de nuestra comunidad, te invitamos a generar tu primera publicación.
+                            </p>
+                        </b-alert>
+                    </b-col>
+                </b-row>
+
+                <b-form-group label="¿En qué comunas prestaras el servicio?">
+                    <vue-bootstrap-typeahead
+                        ref="typeahead_comuna"
+                        :data="comunas"
+                        :serializer="p => p.nombre"
+                        placeholder="Escribe para filtrar ..."
+                        @hit="comuna_seleccionada($event)"
+                    />
+                </b-form-group>
+
+                <b-form-group v-if="comunas_usuario.length">
+                    <b-button variant="primary" size="sm" class="ml-1 mr-1" v-for="c in comunas_usuario" :key="c.id" @click="borrar_comuna_usuario(c.id)">{{ c.nombre }} <i class="fa fa-remove"></i> </b-button>
+                </b-form-group>
+
+                <b-row>    
+                    <b-col lg="10" class="pr-0">
+                        <b-form-group label="¿Cuáles son tus rubros?">
+                            <vue-bootstrap-typeahead
+                                ref="typeahead_rubro"
+                                v-model="usuario.rubro_usuario"
+                                :data="rubros"
+                                :serializer="p => p.nombre"
+                                placeholder="Escribe para filtrar ..."
+                                @hit="rubro_seleccionado($event)"
+                            />
+                        </b-form-group>
+                    </b-col>
+                    <b-col lg="2" class="pl-0">
+                        <b-button :disabled="usuario.rubro_usuario.length == 0" size="md" variant="success" @click="agregar_rubro_usuario" class="mt-4" style="margin-top: 1.8rem !important;">Agregar</b-button>
+                    </b-col>
+                </b-row>
+
+                <b-form-group v-if="rubros_usuario.length">
+                    <b-button variant="primary" size="sm" class="ml-1 mr-1" v-for="r in rubros_usuario" :key="r.id" @click="borrar_rubro_usuario(r.id)">{{ r.nombre }} <i class="fa fa-remove"></i> </b-button>
+                </b-form-group>
+
+                <b-form-group label="¿Qué plan prefieres?" v-show="modal_publicacion.accion == 1">
                     <b-form-select
                         v-model="$v.publicacion.plan_id.$model"
                         :state="$v.publicacion.plan_id.$dirty ? !$v.publicacion.plan_id.$error : null"
@@ -313,7 +416,7 @@
                     <b-form-invalid-feedback id="publicacion-plan-id">
                         Debes asignar un plan a la publicación.
                     </b-form-invalid-feedback>
-                </b-form-group>-->
+                </b-form-group>
 
                 <b-form-group label="Título de publicación">
                     <b-form-input
@@ -340,12 +443,39 @@
                         Campo de alfabético, mínimo de 20 caracteres.
                     </b-form-invalid-feedback>
                 </b-form-group>
+
+                <b-form-group label="Carga imagenes o vídeos sobre la publicación">
+                    <b-form-file
+                        v-model="publicacion.imagenes"
+                        :state="Boolean(publicacion.imagenes)"
+                        multiple
+                        accept="image/*, video/*"
+                        placeholder="Elija un archivo o suéltelo aquí ..."
+                        drop-placeholder="Suelta el archivo aquí... "
+                        :file-name-formatter="formatear_nombre_imagenes"
+                        @change="mostrar_archivos"
+                    ></b-form-file>
+                </b-form-group>
+
+                <b-row>
+                    <b-col lg="4" v-for="(i, index) in publicacion.url_imagenes" :key="index" class="mb-2">
+                        <b-img thumbnail fluid center :src="i.url" class="imagen-galeria mb-2"></b-img>
+                        <center>
+                            <b-button size="md" title="Marcar como imagen de perfil" variant="success" @click="cambiar_imagen_destacada(index, i.id)">
+                                <i v-if="i.perfil == 1" class="fa fa-heart" aria-hidden="true"></i>
+                                <i v-else class="fa fa-heart-o" aria-hidden="true"></i>
+                            </b-button>
+                            <b-button size="md" title="Eliminar imagen" variant="danger" @click="eliminar_imagen(i.id)"><i class="fa fa-remove" aria-hidden="true"></i></b-button>
+                        </center>
+                    </b-col>
+                </b-row>
             </b-form>
 
             <template slot="modal-footer">
-                <b-button :disabled="$v.publicacion.$invalid" v-show="modal_publicacion.accion == 1" size="md" variant="success" @click="crear_actualizar_publicacion"> Guardar </b-button>
+                <b-button :disabled="$v.publicacion.$invalid" v-show="modal_publicacion.accion == 1" size="md" variant="success" @click="crear_actualizar_publicacion"> Ir a pagar </b-button>
                 <b-button :disabled="$v.publicacion.$invalid" v-show="modal_publicacion.accion == 2" size="md" variant="warning" @click="crear_actualizar_publicacion"> Actualizar </b-button>
                 <b-button size="md" variant="danger" @click="cerrar_modal_publicacion"> Cerrar </b-button>
+                <b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(0)"><i class="fa fa-cog"></i> Configurar mi perfil</b-button>
             </template>
         </b-modal>
 
@@ -455,13 +585,16 @@
                     facebook: '',
                     instagram: '',
                     perfil_url: null,
-                    rubro_usuario: ''
+                    rubro_usuario: '',
+                    usuario_pago: null
                 },
                 publicacion: {
                     id: 0,
                     titulo: '',
                     descripcion: '',
-                    plan_id: 0
+                    plan_id: 0,
+                    imagenes: [],
+                    url_imagenes: []
                 },
                 plan_publicacion: {
                     plan_id: 0,
@@ -561,6 +694,12 @@
                 }
             },
             publicacion: {
+                plan_id: {
+                    required: requiredIf(function (value) {
+                        return this.modal_publicacion.accion === 1
+                    }),
+                    minValue: minValue(1)
+                },
                 titulo: {
                     required,
                     minLength: minLength(3)
@@ -578,6 +717,15 @@
             }
         },
         computed:{
+            modal_perfil(){
+                return this.usuario.linkedin && this.usuario.facebook && this.usuario.instagram ? false : true
+            },
+            modal_comunas(){
+                return this.comunas_usuario.length == 0 ? true : false
+            },
+            modal_rubros(){
+                return this.rubros_usuario.length == 0 ? true : false
+            },
             sortOptions() {
                 return this.fields.filter(f => f.sortable).map(f => {
                     return { text: f.label, value: f.key }
@@ -616,6 +764,58 @@
             onFiltered_plan_publicacion(filteredItems) {
                 this.totalRows_plan_publicacion = filteredItems.length
                 this.currentPage = 1
+            },
+            formatear_nombre_imagenes(files) {
+                if (files.length === 1) {
+                    return files[0].name
+                } else {
+                    return `${files.length} archivos seleccionados`
+                }
+            },
+            cambiar_imagen_destacada(index_imagen, id_imagen){
+                this.publicacion.url_imagenes.forEach( function(i, index) {
+                    i.perfil = index_imagen == index ? 1 : 0
+                })
+                if(id_imagen > 0){
+                    this.seleccionar_imagen_perfil(id_imagen)
+                }
+            },
+            mostrar_archivos(e){
+                let me = this
+                this.publicacion.url_imagenes = []
+                Array.from(e.target.files).forEach( function(i, index) {
+                    var item = new Object()
+                    item.id = 0
+                    item.url = URL.createObjectURL(i)
+                    item.perfil = index == 0 ? 1 : 0
+                    me.publicacion.url_imagenes.push(item)
+                })
+            },
+            eliminar_imagen(id){
+                let me = this
+                if(this.modal_publicacion.accion == 1){
+                    this.publicacion.imagenes.splice(id, 1)
+                    this.publicacion.url_imagenes.splice(id, 1)
+                } else {
+                    axios.post('/usuario/imagen/eliminar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listar_imagenes_publicacion();
+                        me.$store.commit('msg_success', 'Registro eliminado exitosamente.')
+                    }).catch(function (error) {
+                        console.log(error);
+                    })
+                }
+
+            },
+            listar_imagenes_publicacion(){
+                let me = this
+                axios.get('/imagenes/usuario/' + this.publicacion.id).then(function (response) {
+                    me.publicacion.url_imagenes = response.data.imagenes
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
             },
             comuna_seleccionada(e){
                 let me = this
@@ -677,8 +877,11 @@
                     me.usuario.facebook = response.data.usuario.facebook
                     me.usuario.instagram = response.data.usuario.instagram
                     me.usuario.perfil_url = response.data.usuario.perfil_url
+                    me.usuario.usuario_pago = response.data.usuario.usuario_pago
 
                     me.listar_publicaciones_usuario(response.data.usuario.id)
+                    me.listar_comunas_usuario()
+                    me.listar_rubros_usuario()
                 })
             },
             listar_comunas(){
@@ -706,6 +909,10 @@
 
                 axios.get('/usuario/publicaciones/' + id).then(function (response) {
                     me.items = response.data.publicaciones
+
+                    if(me.items.length == 0){
+                        me.abrir_modal_publicacion()
+                    }
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -787,12 +994,13 @@
                     });
                 }
             },
+            abrir_configuracion_usuario(accion){
+                this.abrir_modal_informacion_usuario()
+                this.menu_usuario = accion
+            },
             abrir_modal_informacion_usuario(){
                 this.usuario.perfil_url = this.usuario.perfil_url == 'https://image.flaticon.com/icons/svg/149/149076.svg' ? this.usuario.perfil_url : 'storage/' + this.usuario.perfil_url
                 this.$v.usuario.$touch(true)
-
-                this.listar_comunas_usuario()
-                this.listar_rubros_usuario()
 
                 this.$refs['modal_informacion_usuario'].show()
             },
@@ -807,6 +1015,7 @@
                     me.publicacion.id = data.id
                     me.publicacion.titulo = data.titulo
                     me.publicacion.descripcion = data.descripcion
+                    me.publicacion.url_imagenes = data.imagenes_publicacion
                 }
 
                 this.$refs['modal_publicacion'].show()
@@ -816,6 +1025,8 @@
 
                 me.plan_publicaciones = []
                 me.plan_publicacion.publicacion_id = id
+
+                
 
                 me.listar_planes_publicacion()
 
@@ -841,17 +1052,48 @@
                 }
 
                 let me = this
+                let form = new FormData()
 
-                axios.post('/usuario/crear/actualizar/publicacion',{
-                        'id': me.publicacion.id,
-                        'titulo': me.publicacion.titulo,
-                        'descripcion': me.publicacion.descripcion.replace(/\r?\n/g, '<br />'),
-                        'user_id': me.usuario.id,
-                        'plan_id': me.items.length == 0 ? 5 : null
-                    }).then(function (response) {
+                var imagen = this.publicacion.url_imagenes.find(function(i) {
+                    return i.perfil == 1
+                })
+
+                var indice = this.publicacion.url_imagenes.indexOf(imagen)
+
+                 this.publicacion.imagenes.forEach( function(i, index) {
+                    form.append('imagen_' + index, i)
+                })
+
+                form.append('id', me.publicacion.id)
+                form.append('titulo', me.publicacion.titulo)
+                form.append('descripcion', me.publicacion.descripcion.replace(/\r?\n/g, '<br />'),)
+                form.append('user_id', me.usuario.id)
+                form.append('plan_id', me.publicacion.plan_id)
+                form.append('cantidad_imagenes', this.publicacion.imagenes.length)
+                form.append('indice_perfil', indice)
+
+                axios.post('/usuario/crear/actualizar/publicacion', form).then(function (response) {
                         me.listar_publicaciones_usuario(me.usuario.id)
-                        me.limpiar_datos_publicacion()
-                        me.msg_success(me.publicacion.id == 0 ? 'Registro agregado exitosamente.' :  'Registro actualizado exitosamente.')
+                        me.msg_success(me.modal_publicacion.accion == 1 ? 'Seras redireccionado al portal de transbank.' : 'Perfil actualizado exitosamente.')
+
+                        if(me.modal_publicacion.accion == 1){
+                            me.limpiar_datos_publicacion()
+
+                            var form = document.createElement("form");
+                            var input_token = document.createElement("input");
+
+                            console.log(response.data.url);
+                            form.method = "POST";
+                            form.action = response.data.url;
+
+                            input_token.value = response.data.token;
+                            input_token.name = "TBK_TOKEN";
+
+                            form.appendChild(input_token);
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+
                     }).catch(function (error) {
                         console.log(error)
                 })
@@ -870,7 +1112,7 @@
                         'user_id': me.usuario.id
                     }).then(function (response) {
                         me.plan_publicacion.plan_id = 0
-                        me.msg_success('Seras redeireccionado al portal de transbank.')
+                        me.msg_success('Seras redireccionado al portal de transbank.')
 
                         var form = document.createElement("form");
                         var input_token = document.createElement("input");
@@ -894,8 +1136,12 @@
                 this.publicacion.id = 0
                 this.publicacion.titulo = ''
                 this.publicacion.descripcion = ''
+                this.publicacion.imagenes = []
+                this.publicacion.url_imagenes = []
+                this.publicacion.plan_id = null
             },
             cerrar_modal_informacion_usuario(){
+                this.menu_usuario = 0
                 this.$refs['modal_informacion_usuario'].hide()
             },
             cambiar_redes_sociales(){
@@ -987,6 +1233,11 @@
                     }
                 })
             },
+            abrir_modal_inicio_sesion(){
+                if(this.modal_perfil || this.modal_comunas || this.modal_rubros && this.items.length > 0){
+                    this.abrir_modal_informacion_usuario()
+                }
+            }
         },
         mounted() {
             this.usuario_logeado()
