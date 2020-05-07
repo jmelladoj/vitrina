@@ -254,7 +254,7 @@ class UsuarioController extends Controller
                 ],
                 [
                     'titulo' => $request->titulo,
-                    'user_id' => Auth::id()
+                    'user_id' => $request->user_id ? $request->user_id : Auth::id()
                 ]
             );
 
@@ -264,7 +264,6 @@ class UsuarioController extends Controller
             $documento->save();
         }
     }
-
 
     public function borrar(Request $request){
         User::find($request->id)->delete();

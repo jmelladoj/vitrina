@@ -495,6 +495,101 @@
                             </b-col>
                         </b-row>
                     </b-tab>
+                    <b-tab title="Certificaciones y documentos" :active="menu_usuario == 4">
+                        <b-row>
+                            <b-col col-md="6">
+                                <b-form-group>
+                                    <b-form-input
+                                        v-model="$v.documento.titulo.$model"
+                                        :state="$v.documento.titulo.$dirty ? !$v.documento.titulo.$error : null"
+                                        placeholder="Título del documento"
+                                        aria-describedby="documento-titulo"
+                                    ></b-form-input>
+
+                                    <b-form-invalid-feedback id="documento-titulo">
+                                        Campo de alfabético, mínimo de 3 caracteres.
+                                    </b-form-invalid-feedback>
+                                </b-form-group>
+                            </b-col>
+                            <b-col col-md="4">
+                                <b-form-file
+                                    v-model="$v.documento.documento.$model"
+                                    :state="$v.documento.documento.$dirty ? !$v.documento.documento.$error : null"
+                                    placeholder="Elija un archivo o suéltalo aquí ..."
+                                    drop-placeholder="Suelta el archivo aquí ..."
+                                    aria-describedby="documento-documento">
+                                </b-form-file>
+
+                                <b-form-invalid-feedback id="documento-documento">
+                                    Debes de agregar algún documento.
+                                </b-form-invalid-feedback>
+                            </b-col>
+                            <b-col col-md="2">
+                                <b-button size="md" block variant="success" @click="agregar_documento_usuario"> Agregar documento </b-button>
+                            </b-col>
+                        </b-row>
+                        
+                    
+                        <b-row>
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Búsqueda" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="filterInput" class="mb-0" >
+                                <b-input-group size="sm">
+                                    <b-form-input v-model="filter_documentos" type="search" id="filterInput" placeholder="Escribe para buscar"></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter_documentos" @click="filter_documentos = ''">Limpiar</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Ordenar" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="sortBySelect" class="mb-0">
+                                    <b-input-group size="sm">
+                                        <b-form-select v-model="sortBy_documentos" id="sortBySelect" :options="sortOptions_documentos" class="w-75">
+                                            <template v-slot:first>
+                                                <option value="">Sin ordenar</option>
+                                            </template>
+                                        </b-form-select>
+                                        <b-form-select v-model="sortDesc_documentos" size="sm" :disabled="!sortBy_documentos" class="w-25">
+                                            <option :value="false">Asc</option>
+                                            <option :value="true">Desc</option>
+                                        </b-form-select>
+                                    </b-input-group>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Por página" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="perPageSelect" class="mb-0">
+                                    <b-form-select v-model="perPage_documentos" id="perPageSelect" size="sm" :options="pageOptions_documentos"></b-form-select>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-pagination v-model="currentPage_documentos" :total-rows="totalRows_documentos" :per-page="perPage_documentos" align="fill" size="sm" class="my-0" ></b-pagination>
+                            </b-col>
+                        </b-row>
+
+                        <b-row>
+                            <b-col>
+                                <b-table class="my-3" show-empty small striped outlined stacked="sm" :items="documentos_usuario" :fields="fields_documentos" :current-page="currentPage_documentos" :per-page="perPage_documentos" :filter="filter_documentos" :sort-by.sync="sortBy_documentos" :sort-desc.sync="sortDesc_documentos" @filtered="onFiltered_documentos" >
+                                    <template v-slot:empty>
+                                        <center><h5>No hay registros</h5></center>
+                                    </template>
+
+                                    <template v-slot:cell(index)="data">
+                                        {{ data.index + 1 }}
+                                    </template>
+
+
+                                    <template v-slot:cell(acciones)="row">
+                                        <b-button size="xs" variant="danger" title="Eliminar registro" @click="borrar_documento_usuario(row.item.id)">
+                                            <i class="fa fa-trash"></i>
+                                        </b-button>
+                                    </template>
+                                </b-table>
+                            </b-col>
+                        </b-row>
+                    </b-tab>
                 </b-tabs>
             </b-form>
 
@@ -611,6 +706,7 @@
                 rubros_usuario: [],
                 publicaciones_usuario: [],
                 plan_publicaciones: [],
+                documentos_usuario: [],
                 menu_usuario: 0,
                 fields: [
                     { key: 'index', label: '#', sortable: true, class: 'text-center' },
@@ -676,6 +772,11 @@
                 modal_informacion_usuario: {
                     titulo: ''
                 },
+                documento: {
+                    id: null,
+                    titulo: '',
+                    documento: null
+                },
                 usuario: {
                     id: 0,
                     nombre: '',
@@ -717,9 +818,30 @@
                 sortBy_plan_publicacion: '',
                 sortDesc_plan_publicacion: false,
                 filter_plan_publicacion: null,
+                fields_documentos: [
+                    { key: 'index', label: '#', sortable: true, class: 'text-center' },
+                    { key: 'titulo', label: 'Título', sortable: true, class: 'text-left' },
+                    { key: 'acciones', label: 'Acciones', class: 'text-center'}
+                ],
+                totalRows_documentos: 1,
+                currentPage_documentos: 1,
+                perPage_documentos: 15,
+                pageOptions_documentos: [15, 50, 100, 150, 200, 250],
+                sortBy_documentos: '',
+                sortDesc_documentos: false,
+                filter_documentos: null
             }
         },
         validations:{
+            documento: {
+                titulo: {
+                    required,
+                    minLength: minLength(3),
+                },
+                documento: {
+                    required
+                }
+            },
             usuario: {
                 nombre: {
                     required,
@@ -836,6 +958,11 @@
                 return this.fields_plan_publicacion.filter(f => f.sortable).map(f => {
                     return { text: f.label, value: f.key }
                 })
+            },
+            sortOptions_documentos() {
+                return this.fields_documentos.filter(f => f.sortable).map(f => {
+                    return { text: f.label, value: f.key }
+                })
             }
         },
         methods: {
@@ -858,6 +985,10 @@
             },
             onFiltered_plan_publicacion(filteredItems) {
                 this.totalRows_plan_publicacion = filteredItems.length
+                this.currentPage = 1
+            },
+            onFiltered_documentos(filteredItems) {
+                this.totalRows_documentos = filteredItems.length
                 this.currentPage = 1
             },
             comuna_seleccionada(e){
@@ -960,6 +1091,16 @@
                     console.log(error);
                 });
             },
+            listar_documentos(){
+                let me = this
+
+                axios.get('/usuario/documentos/' + me.usuario.id).then(function (response) {
+                    me.documentos_usuario = response.data.documentos
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            },
             listar_comunas_usuario(){
                 let me = this
 
@@ -1000,6 +1141,31 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+            },
+            agregar_documento_usuario(){
+                if(this.$v.documento.$invalid){
+                    this.$v.documento.$touch()
+                    return
+                }
+
+                let me = this
+                let form = new FormData()
+
+                form.append('documento_id', me.documento.id)
+                form.append('titulo', me.documento.titulo)
+                form.append('documento', me.documento.documento)
+                form.append('user_id', me.usuario.id)
+
+                axios.post('/usuario/agregar/documentos',form).then(function (response) {
+                    me.listar_documentos()
+                    me.msg_success('Documento actualizado exitosamente.')
+
+                    me.documento.id = null
+                    me.documento.titulo = ''
+                    me.documento.documento = null
+                }).catch(function (error) {
+                    console.error(error)
+                })
             },
             cargar_datos_plan_usuario(id){
                 let me = this
@@ -1058,6 +1224,7 @@
                 this.listar_comunas_usuario()
                 this.listar_rubros_usuario()
                 this.listar_publicaciones_usuario()
+                this.listar_documentos()
 
                 this.modal_informacion_usuario.titulo = 'Información de ' + data.nombre
                 this.$refs['modal_informacion_usuario'].show()
@@ -1068,6 +1235,29 @@
                 this.menu_usuario = 0
                 this.plan_publicaciones = []
                 this.$refs['modal_informacion_usuario'].hide()
+            },
+            borrar_documento_usuario(id) {
+                swal.fire({
+                    title: '¿Deseas borrar el registro?',
+                    text: "¡No podrás revertir esto!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, ¡bórralo!'
+                }).then((result) => {
+                    if (result.value) {
+                        let me = this
+                        axios.post('/usuario/documento/borrar',{
+                            'id': id
+                        }).then(function (response) {
+                            me.listar_documentos();
+                            me.msg_success('Registro eliminado exitosamente.')
+                        }).catch(function (error) {
+                            console.log(error);
+                        })
+                    }
+                })
             },
             limpiar_datos_informacion_usuario(){
                 this.usuario.id = 0

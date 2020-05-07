@@ -270,6 +270,16 @@
                     </b-tab>
                     <b-tab title="Rubros" :active="menu_usuario == 2" @click="menu_usuario = 2">
                         <b-row>
+                            <b-col>
+                                <b-alert variant="info" show>
+                                    <p>
+                                        Recuerda que mientras más rubros agregues a tu perfil, tienes más posibildidades de aparecer en las búsquedas.
+                                    </p>
+                                </b-alert>
+                            </b-col>
+                        </b-row>
+
+                        <b-row>
                             <b-col cols="10">
                                 <b-form-group label="Selección de rubro :" label-cols-md="2" label-cols-lg="2">
                                     <vue-bootstrap-typeahead
@@ -1006,6 +1016,10 @@
                 axios.post('/usuario/agregar/documentos',form).then(function (response) {
                     me.listar_documentos()
                     me.msg_success('Documento actualizado exitosamente.')
+
+                    me.documento.id = null
+                    me.documento.titulo = ''
+                    me.documento.documento = null
                 }).catch(function (error) {
                     console.error(error)
                 })
