@@ -12,6 +12,7 @@ use App\PlanPublicacion;
 use App\Publicacion;
 use App\Rubro;
 use App\User;
+use App\UsuarioDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -54,6 +55,10 @@ class UsuarioController extends Controller
         return ['plan_publicaciones' => PlanPublicacion::where('publicacion_id', $id)->orderBy('created_at', 'desc')->get()];
     }
 
+    public function index_documentos($id){
+        return ['documentos' => UsuarioDocumento::where('user_id', $id)->orderBy('titulo', 'asc')->get()];
+    }
+
     public function crear_actualizar(Request $request){
 
         $usuario = User::updateOrCreate(
@@ -68,8 +73,12 @@ class UsuarioController extends Controller
             ]
         );
 
-        if($request->id == 0){
-            Mail::to($request->email)->send(new UsuarioNuevo($usuario));
+        try {
+            if($request->id == 0){
+                Mail::to($request->email)->send(new UsuarioNuevo($usuario));
+            }
+        } catch (\Exception $e) {
+            //throw $th;
         }
     }
 
@@ -236,7 +245,25 @@ class UsuarioController extends Controller
         ];
     }
 
+    public function agregar_documentos(Request $request){
+        if ($request->hasFile('documento')) {
 
+            $documento = UsuarioDocumento::updateOrCreate(
+                [
+                    'id' => $request->documento_id
+                ],
+                [
+                    'titulo' => $request->titulo,
+                    'user_id' => Auth::id()
+                ]
+            );
+
+            if($documento->url != null) { Storage::disk('public')->delete($documento->url); }
+
+            $documento->url = Storage::disk('public')->putFile('documentos', $request->file('documento'));
+            $documento->save();
+        }
+    }
 
 
     public function borrar(Request $request){
@@ -264,6 +291,10 @@ class UsuarioController extends Controller
 
     public function borrar_plan_publicaciones(Request $request){
         PlanPublicacion::find($request->id)->delete();
+    }
+
+    public function borrar_documento_usuario(Request $request){
+        UsuarioDocumento::find($request->id)->delete();
     }
 
     public function logeado(){

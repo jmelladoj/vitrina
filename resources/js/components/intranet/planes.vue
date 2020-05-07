@@ -141,7 +141,7 @@
                 totalRows: 1,
                 currentPage: 1,
                 perPage: 15,
-                pageOptions: [15, 50, 100, 150, 200, 150],
+                pageOptions: [15, 50, 100, 150, 200, 250],
                 sortBy: '',
                 sortDesc: false,
                 filter: null,

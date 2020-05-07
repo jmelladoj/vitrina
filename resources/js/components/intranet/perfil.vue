@@ -6,19 +6,20 @@
             </template>
         </titulo-pagina>
 
-        <b-row :if="modal_perfil || modal_comunas || modal_rubros">
+        <b-row :if="modal_perfil || modal_comunas || modal_rubros || modal_documentos">
             <b-col>
                 <b-card>
                     <b-row>
                         <b-col>
-                            <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros">
+                            <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros || modal_documentos">
                                 <p>
                                     Recuerda que mientras más completo este tu perfil, tienes más posibildidades de aparecen en las búsquedas.
                                 </p>
                                 <p>    
                                     <label v-if="modal_perfil"><b>* </b>Falta completar información en <b><u>foto de perfil y redes sociales</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(0)"><i class="fa fa-cog"></i> Configurar información</b-button></label><br>
                                     <label v-if="modal_comunas"><b>* </b>Debes de ingresar al menos <b><u>una comuna dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(1)"><i class="fa fa-cog"></i> Configurar comunas</b-button></label><br>
-                                    <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(2)"><i class="fa fa-cog"></i> Configurar rubros</b-button></label>
+                                    <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(2)"><i class="fa fa-cog"></i> Configurar rubros</b-button></label><br>
+                                    <label v-if="modal_documentos"><b>* </b>Debes de ingresar al menos <b><u>un documento dentro de tu perfil</u></b><b-button size="md" variant="primary" class="ml-2" @click="abrir_configuracion_usuario(3)"><i class="fa fa-cog"></i> Configurar documentos</b-button></label>
                                 </p>
                             </b-alert>
                         </b-col>
@@ -74,6 +75,11 @@
                             <center><h5>No hay registros</h5></center>
                         </template>
 
+                        <template v-slot:cell(estado)="data">
+                            <b-badge v-if="data.item.estado_publicacion" variant="success" class="text-white">Activa</b-badge>
+                            <b-badge v-else variant="danger" class="text-white">Inactiva</b-badge>
+                        </template>
+
                         <template v-slot:cell(acciones)="row">
                             <b-button size="xs" variant="success" title="Agregar plan a publicación" @click="abrir_modal_plan_publicacion_usuario(row.item.id)">
                                 <i class="fa fa-plus"></i>
@@ -94,16 +100,17 @@
 
         <b-modal ref="modal_informacion_usuario" title="Configurar perfil" size="xl" no-close-on-backdrop scrollable static>
             <b-form>
-                <b-row :show="modal_perfil || modal_comunas  || modal_rubros ">
+                <b-row :show="modal_perfil || modal_comunas  || modal_rubros || modal_documentos ">
                     <b-col>
-                        <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros">
+                        <b-alert variant="warning" :show="modal_perfil || modal_comunas || modal_rubros || modal_documentos">
                             <p>
                                 Recuerda que mientras más completo este tu perfil, tienes más posibildidades de aparecen en las búsquedas.
                             </p>
                             <p>    
                                 <label v-if="modal_perfil"><b>* </b>Falta completar información en <b><u>foto de perfil y redes sociales</u></b></label><br>
                                 <label v-if="modal_comunas"><b>* </b>Debes de ingresar al menos <b><u>una comuna dentro de tu perfil</u></b></label><br>
-                                <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b></label>
+                                <label v-if="modal_rubros"><b>* </b>Debes de ingresar al menos <b><u>un rubro dentro de tu perfil</u></b></label><br>
+                                <label v-if="modal_documentos"><b>* </b>Debes de ingresar al menos <b><u>un documentos dentro de tu perfil</u></b></label>
                             </p>
                         </b-alert>
                     </b-col>
@@ -340,8 +347,100 @@
                             </b-col>
                         </b-row>
                     </b-tab>
-                    <b-tab title="Certificaciones y documentos" :active="menu_usuario == 3" @click="menu_usuario = 2">
+                    <b-tab title="Certificaciones y documentos" :active="menu_usuario == 3" @click="menu_usuario = 3">
+                        <b-row>
+                            <b-col col-md="6">
+                                <b-form-group>
+                                    <b-form-input
+                                        v-model="$v.documento.titulo.$model"
+                                        :state="$v.documento.titulo.$dirty ? !$v.documento.titulo.$error : null"
+                                        placeholder="Título del documento"
+                                        aria-describedby="documento-titulo"
+                                    ></b-form-input>
 
+                                    <b-form-invalid-feedback id="documento-titulo">
+                                        Campo de alfabético, mínimo de 3 caracteres.
+                                    </b-form-invalid-feedback>
+                                </b-form-group>
+                            </b-col>
+                            <b-col col-md="4">
+                                <b-form-file
+                                    v-model="$v.documento.documento.$model"
+                                    :state="$v.documento.documento.$dirty ? !$v.documento.documento.$error : null"
+                                    placeholder="Elija un archivo o suéltalo aquí ..."
+                                    drop-placeholder="Suelta el archivo aquí ..."
+                                    aria-describedby="documento-documento">
+                                </b-form-file>
+
+                                <b-form-invalid-feedback id="documento-documento">
+                                    Debes de agregar algún documento.
+                                </b-form-invalid-feedback>
+                            </b-col>
+                            <b-col col-md="2">
+                                <b-button size="md" block variant="success" @click="agregar_documento_usuario"> Agregar documento </b-button>
+                            </b-col>
+                        </b-row>
+                        
+                    
+                        <b-row>
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Búsqueda" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="filterInput" class="mb-0" >
+                                <b-input-group size="sm">
+                                    <b-form-input v-model="filter_documentos" type="search" id="filterInput" placeholder="Escribe para buscar"></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter_documentos" @click="filter_documentos = ''">Limpiar</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Ordenar" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="sortBySelect" class="mb-0">
+                                    <b-input-group size="sm">
+                                        <b-form-select v-model="sortBy_documentos" id="sortBySelect" :options="sortOptions_documentos" class="w-75">
+                                            <template v-slot:first>
+                                                <option value="">Sin ordenar</option>
+                                            </template>
+                                        </b-form-select>
+                                        <b-form-select v-model="sortDesc_documentos" size="sm" :disabled="!sortBy_documentos" class="w-25">
+                                            <option :value="false">Asc</option>
+                                            <option :value="true">Desc</option>
+                                        </b-form-select>
+                                    </b-input-group>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-form-group label="Por página" label-cols-sm="2" label-align-sm="left" label-size="sm" label-for="perPageSelect" class="mb-0">
+                                    <b-form-select v-model="perPage_documentos" id="perPageSelect" size="sm" :options="pageOptions_documentos"></b-form-select>
+                                </b-form-group>
+                            </b-col>
+
+                            <b-col lg="6" class="my-1">
+                                <b-pagination v-model="currentPage_documentos" :total-rows="totalRows_documentos" :per-page="perPage_documentos" align="fill" size="sm" class="my-0" ></b-pagination>
+                            </b-col>
+                        </b-row>
+
+                        <b-row>
+                            <b-col>
+                                <b-table class="my-3" show-empty small striped outlined stacked="sm" :items="documentos_usuario" :fields="fields_documentos" :current-page="currentPage_documentos" :per-page="perPage_documentos" :filter="filter_documentos" :sort-by.sync="sortBy_documentos" :sort-desc.sync="sortDesc_documentos" @filtered="onFiltered_documentos" >
+                                    <template v-slot:empty>
+                                        <center><h5>No hay registros</h5></center>
+                                    </template>
+
+                                    <template v-slot:cell(index)="data">
+                                        {{ data.index + 1 }}
+                                    </template>
+
+
+                                    <template v-slot:cell(acciones)="row">
+                                        <b-button size="xs" variant="danger" title="Eliminar registro" @click="borrar_documento_usuario(row.item.id)">
+                                            <i class="fa fa-trash"></i>
+                                        </b-button>
+                                    </template>
+                                </b-table>
+                            </b-col>
+                        </b-row>
                     </b-tab>
                 </b-tabs>
             </b-form>
@@ -350,8 +449,8 @@
                 <b-button :disabled="$v.usuario.$invalid" v-show="menu_usuario == 0" size="md" variant="success" @click="cambiar_redes_sociales"> Actualizar información </b-button>
 
                 <b-button size="md" variant="danger" @click="cerrar_modal_informacion_usuario"> Cerrar </b-button>
-                <b-button size="md" variant="warning" @click="menu_usuario--" v-show="menu_usuario < 3 && menu_usuario > 0"> Paso anterior </b-button>
-                <b-button size="md" variant="info" @click="menu_usuario++" v-show="menu_usuario > -1 && menu_usuario < 2"> Siguiente paso </b-button>
+                <b-button size="md" variant="warning" @click="menu_usuario--" v-show="menu_usuario < 4 && menu_usuario > 0"> Paso anterior </b-button>
+                <b-button size="md" variant="info" @click="menu_usuario++" v-show="menu_usuario > -1 && menu_usuario < 3"> Siguiente paso </b-button>
             </template>
         </b-modal>
 
@@ -578,6 +677,11 @@
     export default {
         data(){
             return {
+                documento: {
+                    id: null,
+                    titulo: '',
+                    documento: null
+                },
                 usuario: {
                     id: 0,
                     telefono: '',
@@ -611,18 +715,20 @@
                 rubros_usuario: [],
                 plan_publicaciones: [],
                 planes: [],
+                documentos_usuario: [],
                 menu_usuario: 0,
                 fields: [
                     { key: 'index', label: '#', sortable: true, class: 'text-center' },
                     { key: 'titulo', label: 'Título', sortable: true, class: 'text-left' },
                     { key: 'created_at', label: 'Creada', sortable: true, class: 'text-left' },
                     { key: 'expira', label: 'Expira', sortable: true, class: 'text-left' },
+                    { key: 'estado', label: 'Estado', sortable: true, class: 'text-center' },
                     { key: 'acciones', label: 'Acciones', class: 'text-center'}
                 ],
                 totalRows: 1,
                 currentPage: 1,
                 perPage: 15,
-                pageOptions: [15, 50, 100, 150, 200, 150],
+                pageOptions: [15, 50, 100, 150, 200, 250],
                 sortBy: '',
                 sortDesc: false,
                 filter: null,
@@ -634,7 +740,7 @@
                 totalRows_comuna: 1,
                 currentPage_comuna: 1,
                 perPage_comuna: 15,
-                pageOptions_comuna: [15, 50, 100, 150, 200, 150],
+                pageOptions_comuna: [15, 50, 100, 150, 200, 250],
                 sortBy_comuna: '',
                 sortDesc_comuna: false,
                 filter_comuna: null,
@@ -646,7 +752,7 @@
                 totalRows_rubro: 1,
                 currentPage_rubro: 1,
                 perPage_rubro: 15,
-                pageOptions_rubro: [15, 50, 100, 150, 200, 150],
+                pageOptions_rubro: [15, 50, 100, 150, 200, 250],
                 sortBy_rubro: '',
                 sortDesc_rubro: false,
                 filter_rubro: null,
@@ -660,13 +766,34 @@
                 totalRows_plan_publicacion: 1,
                 currentPage_plan_publicacion: 1,
                 perPage_plan_publicacion: 15,
-                pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 150],
+                pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 250],
                 sortBy_plan_publicacion: '',
                 sortDesc_plan_publicacion: false,
-                filter_plan_publicacion: null
+                filter_plan_publicacion: null,
+                fields_documentos: [
+                    { key: 'index', label: '#', sortable: true, class: 'text-center' },
+                    { key: 'titulo', label: 'Título', sortable: true, class: 'text-left' },
+                    { key: 'acciones', label: 'Acciones', class: 'text-center'}
+                ],
+                totalRows_documentos: 1,
+                currentPage_documentos: 1,
+                perPage_documentos: 15,
+                pageOptions_documentos: [15, 50, 100, 150, 200, 250],
+                sortBy_documentos: '',
+                sortDesc_documentos: false,
+                filter_documentos: null
             }
         },
         validations:{
+            documento: {
+                titulo: {
+                    required,
+                    minLength: minLength(3),
+                },
+                documento: {
+                    required
+                }
+            },
             usuario: {
                 telefono: {
                     required,
@@ -726,6 +853,9 @@
             modal_rubros(){
                 return this.rubros_usuario.length == 0 ? true : false
             },
+            modal_documentos(){
+                return this.documentos_usuario.length == 0 ? true : false  
+            },
             sortOptions() {
                 return this.fields.filter(f => f.sortable).map(f => {
                     return { text: f.label, value: f.key }
@@ -743,6 +873,11 @@
             },
             sortOptions_plan_publicacion() {
                 return this.fields_plan_publicacion.filter(f => f.sortable).map(f => {
+                    return { text: f.label, value: f.key }
+                })
+            },
+            sortOptions_documentos() {
+                return this.fields_documentos.filter(f => f.sortable).map(f => {
                     return { text: f.label, value: f.key }
                 })
             }
@@ -763,6 +898,10 @@
             },
             onFiltered_plan_publicacion(filteredItems) {
                 this.totalRows_plan_publicacion = filteredItems.length
+                this.currentPage = 1
+            },
+            onFiltered_documentos(filteredItems) {
+                this.totalRows_documentos = filteredItems.length
                 this.currentPage = 1
             },
             formatear_nombre_imagenes(files) {
@@ -851,6 +990,26 @@
                 })
 
             },
+            agregar_documento_usuario(){
+                if(this.$v.documento.$invalid){
+                    this.$v.documento.$touch()
+                    return
+                }
+
+                let me = this
+                let form = new FormData()
+
+                form.append('documento_id', me.documento.id)
+                form.append('titulo', me.documento.titulo)
+                form.append('documento', me.documento.documento)
+
+                axios.post('/usuario/agregar/documentos',form).then(function (response) {
+                    me.listar_documentos()
+                    me.msg_success('Documento actualizado exitosamente.')
+                }).catch(function (error) {
+                    console.error(error)
+                })
+            },
             rubro_seleccionado(e){
                 let me = this
 
@@ -882,7 +1041,18 @@
                     me.listar_publicaciones_usuario(response.data.usuario.id)
                     me.listar_comunas_usuario()
                     me.listar_rubros_usuario()
+                    me.listar_documentos()
                 })
+            },
+            listar_documentos(){
+                let me = this
+
+                axios.get('/usuario/documentos/' + this.usuario.id).then(function (response) {
+                    me.documentos_usuario = response.data.documentos
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
             },
             listar_comunas(){
                 let me = this
@@ -1032,7 +1202,6 @@
 
                 this.$refs['modal_plan_publicacion'].show()
             },
-
             cerrar_modal_plan_publicacion(){
                 this.modal_publicacion.titulo = ''
                 this.modal_publicacion.accion = 0
@@ -1226,6 +1395,29 @@
                             'id': id
                         }).then(function (response) {
                             me.listar_publicaciones_usuario(me.usuario.id);
+                            me.msg_success('Registro eliminado exitosamente.')
+                        }).catch(function (error) {
+                            console.log(error);
+                        })
+                    }
+                })
+            },
+            borrar_documento_usuario(id) {
+                swal.fire({
+                    title: '¿Deseas borrar el registro?',
+                    text: "¡No podrás revertir esto!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, ¡bórralo!'
+                }).then((result) => {
+                    if (result.value) {
+                        let me = this
+                        axios.post('/usuario/documento/borrar',{
+                            'id': id
+                        }).then(function (response) {
+                            me.listar_documentos();
                             me.msg_success('Registro eliminado exitosamente.')
                         }).catch(function (error) {
                             console.log(error);

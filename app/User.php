@@ -40,7 +40,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ['tipo', 'usuario_pago'];
+    protected $appends = ['tipo', 'usuario_pago', 'foto_perfil'];
 
     public function getUsuarioPagoAttribute(){
         $ventas = $this->ventas_usuario();
@@ -64,6 +64,14 @@ class User extends Authenticatable
 
     public function ventas_usuario(){
         return $this->hasMany(PlanPublicacion::class, 'user_id')->get();
+    }
+
+    public function getFotoPerfilAttribute(){
+        if($this->perfil_url != 'https://image.flaticon.com/icons/svg/149/149076.svg'){
+            return 'storage/' . $this->perfil_url;
+        } else {
+            return $this->perfil_url;
+        }
     }
 
 

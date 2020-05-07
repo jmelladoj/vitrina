@@ -471,6 +471,11 @@
                                                 {{ data.index + 1 }}
                                             </template>
 
+                                            <template v-slot:cell(estado)="data">
+                                                <b-badge v-if="data.item.estado_publicacion" variant="success" class="text-white">Activa</b-badge>
+                                                <b-badge v-else variant="danger" class="text-white">Inactiva</b-badge>
+                                            </template>
+
                                             <template v-slot:cell(acciones)="row">
                                                 <b-button size="xs" variant="success" title="Agregar plan a publicación" @click="cargar_datos_plan_usuario(row.item.id)">
                                                     <i class="fa fa-plus"></i>
@@ -618,7 +623,7 @@
                 totalRows: 1,
                 currentPage: 1,
                 perPage: 15,
-                pageOptions: [15, 50, 100, 150, 200, 150],
+                pageOptions: [15, 50, 100, 150, 200, 250],
                 sortBy: '',
                 sortDesc: false,
                 filter: null,
@@ -630,7 +635,7 @@
                 totalRows_comuna: 1,
                 currentPage_comuna: 1,
                 perPage_comuna: 15,
-                pageOptions_comuna: [15, 50, 100, 150, 200, 150],
+                pageOptions_comuna: [15, 50, 100, 150, 200, 250],
                 sortBy_comuna: '',
                 sortDesc_comuna: false,
                 filter_comuna: null,
@@ -642,7 +647,7 @@
                 totalRows_rubro: 1,
                 currentPage_rubro: 1,
                 perPage_rubro: 15,
-                pageOptions_rubro: [15, 50, 100, 150, 200, 150],
+                pageOptions_rubro: [15, 50, 100, 150, 200, 250],
                 sortBy_rubro: '',
                 sortDesc_rubro: false,
                 filter_rubro: null,
@@ -651,12 +656,13 @@
                     { key: 'titulo', label: 'Título', sortable: true, class: 'text-left' },
                     { key: 'created_at', label: 'Creada', sortable: true, class: 'text-left' },
                     { key: 'expira', label: 'Expira', sortable: true, class: 'text-left' },
+                    { key: 'estado', label: 'Estado', sortable: true, class: 'text-center' },
                     { key: 'acciones', label: 'Acciones', class: 'text-center'}
                 ],
                 totalRows_publicacion: 1,
                 currentPage_publicacion: 1,
                 perPage_publicacion: 15,
-                pageOptions_publicacion: [15, 50, 100, 150, 200, 150],
+                pageOptions_publicacion: [15, 50, 100, 150, 200, 250],
                 sortBy_publicacion: '',
                 sortDesc_publicacion: false,
                 filter_publicacion: null,
@@ -707,7 +713,7 @@
                 totalRows_plan_publicacion: 1,
                 currentPage_plan_publicacion: 1,
                 perPage_plan_publicacion: 15,
-                pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 150],
+                pageOptions_plan_publicacion: [15, 50, 100, 150, 200, 250],
                 sortBy_plan_publicacion: '',
                 sortDesc_plan_publicacion: false,
                 filter_plan_publicacion: null,
@@ -730,11 +736,19 @@
                     minLength: minLength(3),
                     email,
                     async isUnique (value) {
-                        if (this.modal_usuario.accion == 2) return true
-                        if (value === '' || value.length < 3) return true
+                        if (this.modal_usuario.accion == 2 || value === '' || value.length < 3) return true
 
-                        const response = await fetch(`/usuarios/unico/${value}`)
-                        return await response.json()
+                        return new Promise((resolve, reject) => {
+                            axios.get(`/usuarios/unico/${value}`)
+                            .then((response) => {
+                                this.isUnique = response.data
+                                resolve(response.data)
+                            })
+                            .catch((error) => {
+                                this.isUnique = false
+                                reject(false)
+                            })
+                        })                      
                     }
                 },
                 fecha_nacimiento: {

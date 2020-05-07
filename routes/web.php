@@ -92,6 +92,11 @@ Route::post('/usuario/agregar/rubros', 'UsuarioController@agregar_rubros')->name
 Route::get('/usuario/rubros/{id}', 'UsuarioController@index_rubros_usuario')->name('Obtener rubros usuario');
 Route::post('/usuario/rubro/borrar', 'UsuarioController@borrar_rubro_usuario')->name('Borrar rubros usuario');
 
+Route::get('/usuario/documentos/{id}', 'UsuarioController@index_documentos')->name('Obtener documentos usuario');
+Route::post('/usuario/agregar/documentos', 'UsuarioController@agregar_documentos')->name('Agregar documentos al usuario');
+Route::post('/usuario/documento/borrar', 'UsuarioController@borrar_documento_usuario')->name('Borrar documentos usuario');
+
+
 Route::post('/usuario/crear/actualizar/publicacion', 'UsuarioController@agregar_publicaciones')->name('Agregar publicaciones al usuario');
 Route::get('/usuario/publicaciones/{id}', 'UsuarioController@index_publicaciones_usuario')->name('Obtener publicaciones usuario');
 Route::get('/usuario/planes/publicacion/{id}', 'UsuarioController@index_plan_publicaciones_usuario')->name('Obtener planes de publicaciones usuario');

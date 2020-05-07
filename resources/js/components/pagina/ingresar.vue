@@ -243,8 +243,17 @@
                     async isUnique (value) {
                         if (value === '' || value.length < 3) return true
 
-                        const response = await fetch(`/usuarios/unico/${value}`)
-                        return await response.json()
+                        return new Promise((resolve, reject) => {
+                            axios.get(`/usuarios/unico/${value}`)
+                            .then((response) => {
+                                this.isUnique = response.data
+                                resolve(response.data)
+                            })
+                            .catch((error) => {
+                                this.isUnique = false
+                                reject(false)
+                            })
+                        })                      
                     }
                 },
                 fecha_nacimiento: {

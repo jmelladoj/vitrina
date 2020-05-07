@@ -71,7 +71,15 @@
                     <div class="dropdown login">
 
                         <div class="account-dt dropdown-toggle-no-caret" aria-haspopup="true" aria-expanded="false" role="main">
-                            <a href="{{ url('/login') }} "><i class="fas fa-user-circle"></i><span>Ingresar</span></a>
+                            @auth
+                                <a href="{{ url('/home') }} "><i class="fas fa-user-circle"></i><span>{{ Auth::user()->nombre }}</span></a>
+                            @endauth
+                            
+                            @guest
+                                <a href="{{ url('/login') }} "><i class="fas fa-user-circle"></i><span>Ingresar</span></a>
+                            @endguest
+                            
+                            
                         </div>
                     </div>
                 </div>

@@ -45,7 +45,7 @@
                     </b-row>
 
                     <b-table class="my-3" show-empty small striped outlined stacked="sm" :items="items" :fields="fields" :current-page="currentPage" :per-page="perPage" :filter="filter" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" @filtered="onFiltered" >
-                        <template v-slot:empty="scope">
+                        <template v-slot:empty>
                             <center><h5>No hay registros</h5></center>
                         </template>
 
@@ -160,7 +160,7 @@
                 </b-row>
 
                 <b-table class="my-3" show-empty small striped outlined stacked="sm" :items="comunas" :fields="fields_comuna" :current-page="currentPage_comuna" :per-page="perPage_comuna" :filter="filter_comuna" :sort-by.sync="sortBy_comuna" :sort-desc.sync="sortDesc_comuna" @filtered="onFiltered_comuna" >
-                    <template v-slot:empty="scope">
+                    <template v-slot:empty>
                         <center><h5>No hay registros</h5></center>
                     </template>
 
@@ -214,14 +214,14 @@
                 totalRows: 1,
                 currentPage: 1,
                 perPage: 15,
-                pageOptions: [15, 50, 100, 150, 200, 150],
+                pageOptions: [15, 50, 100, 150, 200, 250],
                 sortBy: '',
                 sortDesc: false,
                 filter: null,
                 totalRows_comuna: 1,
                 currentPage_comuna: 1,
                 perPage_comuna: 15,
-                pageOptions_comuna: [15, 50, 100, 150, 200, 150],
+                pageOptions_comuna: [15, 50, 100, 150, 200, 250],
                 sortBy_comuna: '',
                 sortDesc_comuna: false,
                 filter_comuna: null,
