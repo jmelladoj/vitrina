@@ -51,7 +51,15 @@ class Publicacion extends Model
     }
 
     public function total_meses_ventas(){
-        return $this->hasMany(PlanPublicacion::class, 'publicacion_id')->where('estado', 1)->sum('duracion');
+        $publicaciones = $this->hasMany(PlanPublicacion::class, 'publicacion_id')->where('estado', 1)->get();
+        $total = 0;
+
+        foreach ($publicaciones as $item) {
+            if($item->publicacion){
+                $total+= $item->duracion;
+            }
+        }
+        return $total;
     }
 
     public function getExpiraAttribute(){

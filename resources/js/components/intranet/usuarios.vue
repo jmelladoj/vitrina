@@ -341,6 +341,33 @@
                                         Campo de alfabético, mínimo de 20 caracteres.
                                     </b-form-invalid-feedback>
                                 </b-form-group>
+
+                                
+                                <b-form-group label="Carga imagenes o vídeos sobre la publicación">
+                                    <b-form-file
+                                        v-model="publicacion.imagenes"
+                                        :state="Boolean(publicacion.imagenes)"
+                                        multiple
+                                        accept="image/*, video/*"
+                                        placeholder="Elija un archivo o suéltelo aquí ..."
+                                        drop-placeholder="Suelta el archivo aquí... "
+                                        :file-name-formatter="formatear_nombre_imagenes"
+                                        @change="mostrar_archivos"
+                                    ></b-form-file>
+                                </b-form-group>
+
+                                <b-row>
+                                    <b-col lg="4" v-for="(i, index) in publicacion.url_imagenes" :key="index" class="mb-2">
+                                        <b-img thumbnail fluid center :src="i.url" class="imagen-galeria mb-2"></b-img>
+                                        <center>
+                                            <b-button size="md" title="Marcar como imagen de perfil" variant="success" @click="cambiar_imagen_destacada(index, i.id)">
+                                                <i v-if="i.perfil == 1" class="fa fa-heart" aria-hidden="true"></i>
+                                                <i v-else class="fa fa-heart-o" aria-hidden="true"></i>
+                                            </b-button>
+                                            <b-button size="md" title="Eliminar imagen" variant="danger" @click="eliminar_imagen(i.id)"><i class="fa fa-remove" aria-hidden="true"></i></b-button>
+                                        </center>
+                                    </b-col>
+                                </b-row>
                             </b-col>
                             <b-col v-else>
                                 <b-row>
@@ -799,7 +826,9 @@
                     id: 0,
                     titulo: '',
                     descripcion: '',
-                    plan_id: 0
+                    plan_id: 0,
+                    imagenes: [],
+                    url_imagenes: []
                 },
                 plan_publicacion: {
                     plan_id: 0
@@ -1283,6 +1312,8 @@
                 this.publicacion.titulo = ''
                 this.publicacion.descripcion = ''
                 this.publicacion.plan_id = 0
+                this.publicacion.imagenes = []
+                this.publicacion.url_imagenes = []
 
                 this.$v.publicacion.$touch(true)
             },
@@ -1368,14 +1399,29 @@
                 }
 
                 let me = this
+                let form = new FormData()
 
-                axios.post('/usuario/crear/actualizar/publicacion',{
-                        'id': me.publicacion.id,
-                        'titulo': me.publicacion.titulo,
-                        'descripcion': me.publicacion.descripcion.replace(/\r?\n/g, '<br />'),
-                        'user_id': me.usuario.id,
-                        'plan_id': me.publicacion.plan_id
-                    }).then(function (response) {
+                var imagen = this.publicacion.url_imagenes.find(function(i) {
+                    return i.perfil == 1
+                })
+
+                var indice = this.publicacion.url_imagenes.indexOf(imagen)
+
+                 this.publicacion.imagenes.forEach( function(i, index) {
+                    form.append('imagen_' + index, i)
+                })
+
+                form.append('id', me.publicacion.id)
+                form.append('titulo', me.publicacion.titulo)
+                form.append('descripcion', me.publicacion.descripcion.replace(/\r?\n/g, '<br />'),)
+                form.append('user_id', me.usuario.id)
+                form.append('plan_id', me.publicacion.plan_id)
+                form.append('cantidad_imagenes', this.publicacion.imagenes.length)
+                form.append('indice_perfil', indice)
+
+
+
+                axios.post('/usuario/crear/actualizar/publicacion', form).then(function (response) {
                         me.listar_publicaciones_usuario()
                         me.limpiar_datos_publicacion()
                         me.msg_success(me.publicacion.id == 0 ? 'Registro agregado exitosamente.' :  'Registro actualizado exitosamente.')
@@ -1530,8 +1576,82 @@
                         })
                     }
                 })
-            }
+            },
+            formatear_nombre_imagenes(files) {
+                if (files.length === 1) {
+                    return files[0].name
+                } else {
+                    return `${files.length} archivos seleccionados`
+                }
+            },
+            cambiar_imagen_destacada(index_imagen, id_imagen){
+                this.publicacion.url_imagenes.forEach( function(i, index) {
+                    i.perfil = index_imagen == index ? 1 : 0
+                })
+                if(id_imagen > 0){
+                    this.seleccionar_imagen_perfil(id_imagen)
+                }
+            },
+            mostrar_archivos(e){
+                let me = this
+                this.publicacion.url_imagenes = []
+                Array.from(e.target.files).forEach( function(i, index) {
+                    var item = new Object()
+                    item.id = 0
+                    item.url = URL.createObjectURL(i)
+                    item.perfil = index == 0 ? 1 : 0
+                    me.publicacion.url_imagenes.push(item)
+                })
+            },
+            eliminar_imagen(id){
+                let me = this
+                if(this.modal_publicacion.accion == 1){
+                    this.publicacion.imagenes.splice(id, 1)
+                    this.publicacion.url_imagenes.splice(id, 1)
+                } else {
+                    axios.post('/usuario/imagen/eliminar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listar_imagenes_publicacion();
+                        me.$store.commit('msg_success', 'Registro eliminado exitosamente.')
+                    }).catch(function (error) {
+                        console.log(error);
+                    })
+                }
 
+            },
+            listar_imagenes_publicacion(){
+                let me = this
+                axios.get('/imagenes/usuario/' + me.publicacion.id).then(function (response) {
+                    me.publicacion.url_imagenes = response.data.imagenes
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            },
+            borrar_publicacion_usuario(id) {
+                swal.fire({
+                    title: '¿Deseas borrar el registro?',
+                    text: "¡No podrás revertir esto!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, ¡bórralo!'
+                }).then((result) => {
+                    if (result.value) {
+                        let me = this
+                        axios.post('/usuario/publicacion/borrar',{
+                            'id': id
+                        }).then(function (response) {
+                            me.listar_publicaciones_usuario(me.usuario.id);
+                            me.msg_success('Registro eliminado exitosamente.')
+                        }).catch(function (error) {
+                            console.log(error);
+                        })
+                    }
+                })
+            },
         },
         mounted() {
             this.listar_registros()

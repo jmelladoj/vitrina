@@ -21,7 +21,7 @@
                             </div>
                         </div>
                         <div class="box-radius">
-                            <img :src="publicacion.foto_perfil" class="img rounded-circle" alt="" title="" >
+                            <img :src="publicacion.usuario.foto_perfil" class="img rounded-circle" alt="" title="" width="50">
                         </div>
                         <div class="box-heading3">
                             <a :href="'/publicacion/' + publicacion.id" v-text="publicacion.nombreUsuario"></a>

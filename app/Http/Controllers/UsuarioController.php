@@ -177,13 +177,7 @@ class UsuarioController extends Controller
             }
         }
 
-        if($plan){
-            $bag = CertificationBagFactory::integrationWebpayNormal();
-            $plus = TransbankServiceFactory::normal($bag);
-            $plus->addTransactionDetail($plan->valor, ($ventas + 1));
-    
-            $response = $plus->initTransaction(url('/publicacion/procesar'), url('/publicacion/finalizar'));
-    
+        if(Auth::user()->administrador == 1){
             if($plan){
                 PlanPublicacion::create([
                     'nombre_plan' => $plan->nombre,
@@ -192,16 +186,35 @@ class UsuarioController extends Controller
                     'plan_id' => $plan->id,
                     'publicacion_id' => $publicacion->id,
                     'user_id' => $request->user_id,
-                    'token' => $response->token
+                    'estado' => 1
                 ]);
-        
             }
-    
-    
-            return [
-                'url' => $response->url,
-                'token' => $response->token
-            ];
+        } else {
+            if($plan){
+                $bag = CertificationBagFactory::integrationWebpayNormal();
+                $plus = TransbankServiceFactory::normal($bag);
+                $plus->addTransactionDetail($plan->valor, ($ventas + 1));
+        
+                $response = $plus->initTransaction(url('/publicacion/procesar'), url('/publicacion/finalizar'));
+        
+                if($plan){
+                    PlanPublicacion::create([
+                        'nombre_plan' => $plan->nombre,
+                        'duracion' => $plan->duracion,
+                        'valor' => $plan->valor,
+                        'plan_id' => $plan->id,
+                        'publicacion_id' => $publicacion->id,
+                        'user_id' => $request->user_id,
+                        'token' => $response->token
+                    ]);
+                }
+        
+        
+                return [
+                    'url' => $response->url,
+                    'token' => $response->token
+                ];
+            }
         }
 
     }

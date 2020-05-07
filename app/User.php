@@ -46,7 +46,7 @@ class User extends Authenticatable
         $ventas = $this->ventas_usuario();
 
         foreach ($ventas as $v) {
-            if($v->estado == 1 && $v->valor > 0 && Carbon::now() < $v->publicacion->expira){
+            if($v->estado == 1 && $v->valor > 0 && $v->publicacion && Carbon::now() < $v->publicacion->expira){
                 return 1;
             }
         }
