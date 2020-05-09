@@ -887,19 +887,11 @@
                     minLength: minLength(3),
                     email,
                     async isUnique (value) {
-                        if (this.modal_usuario.accion == 2 || value === '' || value.length < 3) return true
+                        if (value.includes('@') == false) return true
+                        if (value.includes('.') == false) return true
 
-                        return new Promise((resolve, reject) => {
-                            axios.get(`/usuarios/unico/${value}`)
-                            .then((response) => {
-                                this.isUnique = response.data
-                                resolve(response.data)
-                            })
-                            .catch((error) => {
-                                this.isUnique = false
-                                reject(false)
-                            })
-                        })                      
+                        const response = await fetch(`/usuarios/unico/${value}`)
+                        return Boolean(await response.json())
                     }
                 },
                 fecha_nacimiento: {

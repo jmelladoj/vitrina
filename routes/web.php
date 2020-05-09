@@ -14,6 +14,17 @@
 use App\General;
 use App\Rubro;
 
+Route::get('/clear', function() {
+
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    Artisan::call('view:clear');
+ 
+    return "Cleared!";
+ 
+ });
+
 Route::get('/', function () {
     $rubros = Rubro::get()->sortByDesc('usuarios_asociados')->take(8);
     return view('welcome')->with('rubros', $rubros);

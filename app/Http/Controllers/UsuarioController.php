@@ -30,7 +30,7 @@ class UsuarioController extends Controller
     public function index($tipo){
         switch ($tipo) {
             case 1:
-                return ['usuarios' => User::withTrashed()->orderBy('nombre', 'asc')->get()];
+                return ['usuarios' => User::orderBy('nombre', 'asc')->get()];
                 break;
             case 2:
                 return ['usuarios' => User::orderBy('nombre', 'asc')->get()];
@@ -314,7 +314,8 @@ class UsuarioController extends Controller
     }
 
     public function validar_unico($texto){
-        return json_encode(User::where('email', $texto)->get()->count() > 0 ? false : true);
+        $usuario = User::where('email', $texto)->first();
+        return response()->json($usuario ? false : true);
     }
 
     public function recuperar_clave(Request $request){
